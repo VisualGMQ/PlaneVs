@@ -1,5 +1,7 @@
-使用C++ 和 wxWidgets制作的图片打包工具  
+使用C++制作的图片打包工具  
 
 # 需要的库
 
-* wxWidgets 3.0
+* SDL2
+* SDL2\_image
+* SDL2\_ttf
