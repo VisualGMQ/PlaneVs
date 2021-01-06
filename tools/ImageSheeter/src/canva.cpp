@@ -52,8 +52,8 @@ void Canva::onDrag(SDL_Event& event) {
 void Canva::calcCollidTexture() {
     _collied_textures.clear();
     for (auto& info : _texture_infos) {
-        SDL_Rect rect1 = _selected_texture->GetRect(),
-                 rect2 = info.GetRect();
+        SDL_Rect rect1 = _selected_texture->GetRectByCenter(),
+                 rect2 = info.GetRectByCenter();
         if (info.name != _selected_texture->name && SDL_HasIntersection(&rect1, &rect2)) {
             _collied_textures.push_back(&info);
         }
@@ -64,17 +64,17 @@ void Canva::Paint() {
     auto render = GetRender();
     SDL_Rect rect;
     for (auto& info : _texture_infos) {
-        rect = info.GetRect();
+        rect = info.GetRectByCenter();
         SDL_RenderCopy(render, info.texture, nullptr, &rect);
     }
     if (_selected_texture) {
-        rect = _selected_texture->GetRect();
+        rect = _selected_texture->GetRectByCenter();
         SDL_RenderCopy(render, _selected_texture->texture, nullptr, &rect);
         SDL_SetRenderDrawColor(render, 255, 0, 0, 255);
         SDL_RenderDrawRect(GetRender(), &rect);
     }
     if (_focused_texture && _focused_texture != _selected_texture) {
-        rect = _focused_texture->GetRect();
+        rect = _focused_texture->GetRectByCenter();
         SDL_RenderCopy(render, _focused_texture->texture, nullptr, &rect);
         SDL_SetRenderDrawColor(render, 0, 255, 0, 255);
         SDL_RenderDrawRect(render, &rect);
@@ -93,7 +93,7 @@ void Canva::Paint() {
     }
 
     for (auto& info : _collied_textures) {
-        rect = info->GetRect();
+        rect = info->GetRectByCenter();
         SDL_SetRenderDrawColor(render, 255, 255, 0, 255);
         SDL_RenderDrawRect(render, &rect);
     }
@@ -155,6 +155,65 @@ void Canva::onKeyDown(SDL_Event& event) {
     if (event.key.keysym.sym == SDLK_SPACE) {
         _space_pressed = true;
     }
+    if (event.key.keysym.sym == SDLK_RETURN) {
+        SaveImage();
+    }
+    if (event.key.keysym.sym == SDLK_BACKSPACE) {
+        if (_selected_texture && !_texture_infos.empty()) {
+            int pos = 0;
+            for (; pos < _texture_infos.size(); pos++) {
+                if (_texture_infos[pos].name == _selected_texture->name)
+                    break;
+            }
+            if (pos < _texture_infos.size()) {
+                auto it = _texture_infos.begin() += pos;
+                _texture_infos.erase(it);
+                _selected_texture = nullptr;
+                _focused_texture = nullptr;
+            }
+        }
+    }
+}
+
+void Canva::SaveImage() {
+    const SDL_MessageBoxButtonData buttons[] = {
+        { /* .flags, .buttonid, .text */        0, 0, "不保存" },
+        { SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "保存" }
+    };
+    const SDL_MessageBoxColorScheme colorScheme = {
+        { /* .colors (.r, .g, .b) */
+            /* [SDL_MESSAGEBOX_COLOR_BACKGROUND] */
+            { 255,   0,   0 },
+            /* [SDL_MESSAGEBOX_COLOR_TEXT] */
+            {   0, 255,   0 },
+            /* [SDL_MESSAGEBOX_COLOR_BUTTON_BORDER] */
+            { 255, 255,   0 },
+            /* [SDL_MESSAGEBOX_COLOR_BUTTON_BACKGROUND] */
+            {   0,   0, 255 },
+            /* [SDL_MESSAGEBOX_COLOR_BUTTON_SELECTED] */
+            { 255,   0, 255 }
+        }
+    };
+
+    auto cur_path = fs::current_path();
+    string msg = "文件会保存到"+cur_path.string()+"/image.png\n要保存吗";
+    const SDL_MessageBoxData messageboxdata = {
+        SDL_MESSAGEBOX_INFORMATION, /* .flags */
+        nullptr, /* .window */
+        "要保存吗", /* .title */
+        msg.c_str(), /* .message */
+        SDL_arraysize(buttons), /* .numbuttons */
+        buttons, /* .buttons */
+        &colorScheme /* .colorScheme */
+    };
+    int buttonid;
+    if (SDL_ShowMessageBox(&messageboxdata, &buttonid) < 0) {
+        SDL_Log("error displaying message box");
+        return;
+    }
+    if (buttonid == 1) {
+        Img2File("info.txt", "image.png", _texture_infos, {100, 100, 100, 255});
+    }
 }
 
 void Canva::onKeyUp(SDL_Event& event) {
@@ -166,17 +225,17 @@ void Canva::onKeyUp(SDL_Event& event) {
 TextureInfo Canva::loadTexture(fs::path& path) {
     auto render = GetRender();
     SDL_Surface* surface = IMG_Load(path.c_str());
-    TextureInfo info = {.name = GetNameWithoutExtension(path.filename().string()), .texture = nullptr, .position = {surface->w/2, surface->h/2}, .size = {surface->w, surface->h}};
+    TextureInfo info = {.name = GetNameWithoutExtension(path.filename().string()), .texture = nullptr, .surface = nullptr, .position = {surface->w/2, surface->h/2}, .size = {surface->w, surface->h}};
     if (!surface) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "error", (string(path.filename().c_str())+" load failed").c_str(), nullptr);
         return info;
     }
+    info.surface = surface;
     info.texture = SDL_CreateTextureFromSurface(render, surface);
     if (!info.texture) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "error", "texture create failed", nullptr);
         return info;
     }
-    SDL_FreeSurface(surface);
     return info;
 }
 
@@ -184,6 +243,8 @@ void Canva::Exit() {
 }
 
 Canva::~Canva() {
-    for (auto& info : _texture_infos)
+    for (auto& info : _texture_infos) {
         SDL_DestroyTexture(info.texture);
+        SDL_FreeSurface(info.surface);
+    }
 }
