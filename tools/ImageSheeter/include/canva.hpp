@@ -2,31 +2,18 @@
 #define CANVA_HPP
 #include <string>
 #include <vector>
+#include <iterator>
 #include "SDL.h"
 #include "SDL_image.h"
 #include "SDL_ttf.h"
 #include "uiobject.hpp"
 #include "header.hpp"
 #include "label.hpp"
+#include "img2file.hpp"
 using std::string;
 using std::vector;
+using std::advance;
 namespace fs = std::filesystem;
-
-struct TextureInfo {
-    string name;
-    SDL_Texture* texture;
-    SDL_Point position;
-    SDL_Size size;
-
-    SDL_Rect GetRect() const {
-        return {position.x - size.w/2, position.y - size.h/2, size.w, size.h};
-    }
-
-    bool IsClicked(SDL_Point& mouse_position) {
-        SDL_Rect rect = GetRect();
-        return SDL_PointInRect(&mouse_position, &rect);
-    }
-};
 
 string GetNameWithoutExtension(string filename);
 
@@ -56,6 +43,7 @@ class Canva final: public UIObject {
 
     TextureInfo loadTexture(fs::path&);
     void calcCollidTexture();
+    void SaveImage();
 };
 
 #endif
