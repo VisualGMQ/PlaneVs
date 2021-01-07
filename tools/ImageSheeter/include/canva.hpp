@@ -20,7 +20,7 @@ string GetNameWithoutExtension(string filename);
 class Canva final: public UIObject {
  public:
     Canva() = default;
-    void InitResources();
+    void InitResources(SDL_Window*);
     void Paint() override;
     void Exit();
     virtual ~Canva();

@@ -1,7 +1,7 @@
-#include "myapp.hpp"
+#include "imagesheeter_app.hpp"
 
 int main(int argc, char** argv) {
-    MyApp app;
+    ImageSheeterApp app;
     app.MainLoop();
     return 0;
 }
