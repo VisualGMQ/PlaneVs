@@ -1,6 +1,6 @@
 #include "canva.hpp"
 
-void Canva::InitResources() {
+void Canva::InitResources(SDL_Window* window) {
     _hint.SetRender(GetRender());
     _hint.InitFont();
     _hint.Hide();
@@ -111,7 +111,7 @@ void Canva::onDropFile(SDL_Event&, fs::path file_path) {
             extension != ".gif" && extension != "jpeg" &&
             extension != ".bmp") {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "错误的文件", "请拖入图像文件(png,jpg,gif,bmp)", nullptr);
-        return ;
+        return;
     }
 
     for (auto& info : _texture_infos) {
