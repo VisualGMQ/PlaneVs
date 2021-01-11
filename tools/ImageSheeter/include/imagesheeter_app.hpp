@@ -12,7 +12,6 @@ class ImageSheeterApp:public SDLApp{
      Canva _canva;
 
      void onInit() override;
-     void onDestroy() override;
      void eventHandle() override;
      void onStep() override;
 

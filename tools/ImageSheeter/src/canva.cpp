@@ -176,42 +176,16 @@ void Canva::onKeyDown(SDL_Event& event) {
 }
 
 void Canva::SaveImage() {
-    const SDL_MessageBoxButtonData buttons[] = {
-        { /* .flags, .buttonid, .text */        0, 0, "不保存" },
-        { SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "保存" }
-    };
-    const SDL_MessageBoxColorScheme colorScheme = {
-        { /* .colors (.r, .g, .b) */
-            /* [SDL_MESSAGEBOX_COLOR_BACKGROUND] */
-            { 255,   0,   0 },
-            /* [SDL_MESSAGEBOX_COLOR_TEXT] */
-            {   0, 255,   0 },
-            /* [SDL_MESSAGEBOX_COLOR_BUTTON_BORDER] */
-            { 255, 255,   0 },
-            /* [SDL_MESSAGEBOX_COLOR_BUTTON_BACKGROUND] */
-            {   0,   0, 255 },
-            /* [SDL_MESSAGEBOX_COLOR_BUTTON_SELECTED] */
-            { 255,   0, 255 }
-        }
-    };
 
     auto cur_path = fs::current_path();
     string msg = "文件会保存到"+cur_path.string()+"/image.png\n要保存吗";
-    const SDL_MessageBoxData messageboxdata = {
-        SDL_MESSAGEBOX_INFORMATION, /* .flags */
-        nullptr, /* .window */
-        "要保存吗", /* .title */
-        msg.c_str(), /* .message */
-        SDL_arraysize(buttons), /* .numbuttons */
-        buttons, /* .buttons */
-        &colorScheme /* .colorScheme */
-    };
-    int buttonid;
-    if (SDL_ShowMessageBox(&messageboxdata, &buttonid) < 0) {
+
+    auto ret = ShowYesNoMessageBox("保存", msg, "保存", "不保存");
+    if (ret == YesNoMsgBoxRet::YESNOMSG_ERROR) {
         SDL_Log("error displaying message box");
         return;
     }
-    if (buttonid == 1) {
+    if (ret == YesNoMsgBoxRet::YESNOMSG_YES) {
         Img2File("info.txt", "image.png", _texture_infos, {100, 100, 100, 255});
     }
 }

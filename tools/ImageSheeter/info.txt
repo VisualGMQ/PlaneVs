@@ -1,0 +1,5 @@
+image.png
+cube_man 0 0 128 128
+icon 128 14 32 32
+
+

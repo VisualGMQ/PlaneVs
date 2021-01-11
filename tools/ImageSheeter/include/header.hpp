@@ -30,6 +30,14 @@ struct TextureInfo {
     }
 };
 
+enum YesNoMsgBoxRet {
+    YESNOMSG_YES,
+    YESNOMSG_NO,
+    YESNOMSG_UNKNOWN,
+    YESNOMSG_ERROR
+};
+
+YesNoMsgBoxRet ShowYesNoMessageBox(string title, string text, string yes_msg, string no_msg);
 
 #endif
 
