@@ -26,9 +26,3 @@ void ImageSheeterApp::onExit(SDL_Event&) {
 void ImageSheeterApp::onStep() {
     _canva.Paint();
 }
-
-void ImageSheeterApp::onDestroy() {
-    IMG_Quit();
-    TTF_Quit();
-    SDL_Quit();
-}
