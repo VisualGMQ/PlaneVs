@@ -44,11 +44,15 @@ void GLShader::compileShader() {
         char buf[1024] = {0};
         glGetShaderInfoLog(_shader, sizeof(buf), nullptr, buf);
         Log("shader compile failed:\n" + string(buf));
+        invalid();
+    } else {
+        valid();
     }
 }
 
 void GLShader::Destroy() {
     glDeleteShader(_shader);
+    invalid();
 }
 
 GLShader::~GLShader() {

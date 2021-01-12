@@ -13,8 +13,8 @@ struct Color{
 };
 
 struct Size{
-    int w;
-    int h;
+    float w;
+    float h;
 };
 
 inline void Log(string msg) {

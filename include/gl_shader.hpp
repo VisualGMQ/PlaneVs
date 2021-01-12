@@ -5,11 +5,12 @@
 #include <streambuf>
 #include "GL/glew.h"
 #include "header.hpp"
+#include "validable.hpp"
 using std::string;
 using std::ifstream;
 using std::istreambuf_iterator;
 
-class GLShader final{
+class GLShader final : public Validable{
  public:
      GLShader(GLenum type, string filename);
      GLuint GetId() const;

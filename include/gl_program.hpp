@@ -4,20 +4,25 @@
 #include "gl_shader.hpp"
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "validable.hpp"
 using glm::mat4;
 using glm::value_ptr;
+using glm::vec4;
 using std::string;
 
-class GLProgram {
+class GLProgram : public Validable{
  public:
      GLProgram();
      GLProgram(GLShader& vertex_shader, GLShader& frag_shader);
      void ApplyShaders(GLShader& vertex_shader, GLShader& frag_shader);
      void Use();
      void Destroy();
-     void UniformMat4(string, mat4);
-     void UniformInt1(string, int);
-     void Uniformfloat1(string, float);
+     void UniformMat4(const string, mat4);
+     void UniformInt1(const string, int);
+     void UniformFloat1(const string, float);
+     void UniformFloat3(const string, float, float, float);
+     void UniformFloat4(const string, float, float, float, float);
+     void UniformVec4(const string, vec4);
      ~GLProgram();
  private:
      GLuint _program = 0;
@@ -25,7 +30,7 @@ class GLProgram {
      void createProgram();
      void attachShaders(GLShader&, GLShader&);
      void linkShaders();
-     GLint getLocation(string name);
+     GLint getLocation(const string& name);
 };
 
 #endif

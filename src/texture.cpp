@@ -9,21 +9,18 @@ Texture::Texture(string filename): Texture() {
     Load(filename);
 }
 
-void Texture::Load(string filename) {
+void Texture::Load(const string filename) {
     SDL_Surface* surface = IMG_Load(filename.c_str());
     if (!surface) {
         Log("can't load image " + filename);
+        invalid();
     } else {
         _size.w = surface->w;
         _size.h = surface->h;
-        _valid = true;
+        valid();
         bufferTextureData(surface);
     }
     SDL_FreeSurface(surface);
-}
-
-bool Texture::Valid() const {
-    return _valid;
 }
 
 Size Texture::GetSize() const {
@@ -47,18 +44,14 @@ void Texture::bufferTextureData(SDL_Surface* surface) {
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Texture::Draw(GLProgram& program, float x, float y, Size size, float degree) {
-    float scalex = size.w/static_cast<float>(_size.w),
-          scaley = size.h/static_cast<float>(_size.h);
-    Draw(program, x, y, scalex, scaley, degree);
-}
-
-void Texture::Draw(GLProgram& program, float x, float y, float scalex, float scaley, float degree) {
-    mat4 model = calcPositionInfo(x, y),
-         trans = calcTransformInfo(scalex, scaley, degree);
+void Texture::Draw(GLProgram& program, ShapeInfo shape_info, ColorInfo color_info) {
+    mat4 model = calcPositionInfo(shape_info.position.x, shape_info.position.y),
+         trans = calcRotateScaleInfo(shape_info.scale.x, shape_info.scale.y, shape_info.degree);
     program.UniformInt1("tex", 0);
-    program.UniformMat4("model", model);
-    program.UniformMat4("transform", trans);
+    program.UniformMat4("view", model);
+    program.UniformMat4("rotscale", trans);
+    program.UniformFloat4("color", color_info.color.r, color_info.color.g, color_info.color.b, color_info.color.a);
+    program.UniformFloat3("keycolor", color_info.key_color.r, color_info.key_color.g, color_info.key_color.b);
 
     glBindTexture(GL_TEXTURE_2D, _texture);
 
@@ -73,7 +66,7 @@ mat4 Texture::calcPositionInfo(float x, float y) {
     return model;
 }
 
-mat4 Texture::calcTransformInfo(float scalex, float scaley, float angle_degree) {
+mat4 Texture::calcRotateScaleInfo(float scalex, float scaley, float angle_degree) {
     mat4 trans = mat4(1.0f);
     trans = glm::rotate(trans, glm::radians(angle_degree), vec3(0, 0, 1));
     trans = glm::scale(trans, vec3(_size.w*scalex, _size.h*scaley, 0));

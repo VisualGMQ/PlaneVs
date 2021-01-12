@@ -33,6 +33,9 @@ void GLProgram::linkShaders() {
         char buf[1024] = {0};
         glGetProgramInfoLog(_program, sizeof(buf), nullptr, buf);
         Log("program link failed:\n" + string(buf));
+        invalid();
+    } else {
+        valid();
     }
 }
 
@@ -42,24 +45,34 @@ void GLProgram::Use() {
 
 void GLProgram::Destroy() {
     glDeleteProgram(_program);
+    invalid();
 }
 
-void GLProgram::UniformMat4(string name, mat4 m) {
-    GLint loc = getLocation(name);
-    glUniformMatrix4fv(loc, 1, GL_FALSE, value_ptr(m));
+void GLProgram::UniformMat4(const string name, mat4 m) {
+    glUniformMatrix4fv(getLocation(name), 1, GL_FALSE, value_ptr(m));
 }
 
-void GLProgram::UniformInt1(string name, int value) {
-    GLint loc = getLocation(name);
-    glUniform1d(loc, value);
+void GLProgram::UniformInt1(const string name, int value) {
+    glUniform1d(getLocation(name), value);
 }
 
-void GLProgram::Uniformfloat1(string name, float value) {
-    GLint loc = getLocation(name);
-    glUniform1f(loc, value);
+void GLProgram::UniformFloat1(const string name, float value) {
+    glUniform1f(getLocation(name), value);
 }
 
-GLint GLProgram::getLocation(string name) {
+void GLProgram::UniformFloat3(const string name, float v1, float v2, float v3) {
+    glUniform3f(getLocation(name), v1, v2, v3);
+}
+
+void GLProgram::UniformFloat4(const string name, float v1, float v2, float v3, float v4) {
+    glUniform4f(getLocation(name), v1, v2, v3, v4);
+}
+
+void GLProgram::UniformVec4(const string name, vec4 value) {
+    glUniform1fv(getLocation(name), 1, value_ptr(value));
+}
+
+GLint GLProgram::getLocation(const string& name) {
     GLuint loc = glGetUniformLocation(_program, name.c_str());
     if (loc == -1)
         Log(name + " location can't find");

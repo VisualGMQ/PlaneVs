@@ -10,8 +10,19 @@ class ExecBody {
      virtual void Step() = 0;
      virtual void Destroy() = 0;
      virtual ~ExecBody() = default;
-     void DepsInject(SDL_Window* window) {
+     Size GetWindowSize() const {
+         int w, h;
+         SDL_GetWindowSize(_window, &w, &h);
+         return {static_cast<float>(w), static_cast<float>(h)};
+     }
+
+     Size GetCanvaSize() const {
+         return _canva_size;
+     }
+
+     void DepsInject(SDL_Window* window, Size canva_size) {
          _window = window;
+         _canva_size = canva_size;
      }
 
      bool ShouldExit() const {
@@ -20,13 +31,13 @@ class ExecBody {
 
      void Exit() {
         _should_exit = true;
+        Log("Game Exited");
      }
-
- protected:
-     SDL_Window* _window = nullptr;
 
  private:
      bool _should_exit = false;
+     SDL_Window* _window = nullptr;
+     Size _canva_size;
 };
 
 #endif
