@@ -1,5 +1,5 @@
-#include "app.hpp"
-#include "game_body.hpp"
+#include "engin/app.hpp"
+#include "game/game_body.hpp"
 
 int main(int argc, char** argv) {
     App app;

@@ -1,8 +1,10 @@
-#include "app.hpp"
+#include "engin/app.hpp"
 
 App::App() {
     initSystem();
-    Log("System Inited");
+    Log("System inited");
+    SystemProgram::Init();
+    Log("programs inited");
     initGLBuffers();
     Log("gl buffers inited");
     prepDataForDraw();
@@ -53,15 +55,12 @@ void App::initSystem() {
 }
 
 void App::initGLBuffers() {
-    glGenBuffers(1, &_vbo);
-    Assertm("VBO create failed", _vbo != 0);
-    glGenBuffers(1, &_ebo);
-    Assertm("EBO create failed", _ebo != 0);
-    glGenVertexArrays(1, &_vao);
-    Assertm("VAO create failed", _vao != 0);
+    _gfx_buf = GLGfxBufManager::Create();
+    Log("system gfx buffer created");
 }
 
 void App::prepDataForDraw() {
+    // TODO 这个地方的dataes要单独拎出来，因为有Texture内可能有其他的data要填充到Buffer中
     GLfloat dataes[] = {
     //  image_x image_y tex_x tex_y
         -0.5,   -0.5,   0,    0,
@@ -70,14 +69,15 @@ void App::prepDataForDraw() {
          0.5,    0.5,   1,    1
     };
 
-    glBindBuffer(GL_ARRAY_BUFFER, _vbo);
-    glBindVertexArray(_vao);
+    auto _gfx_buf = GLGfxBufManager::GetById(SystemGfxBufId);
+    glBindBuffer(GL_ARRAY_BUFFER, _gfx_buf->vbo);
+    glBindVertexArray(_gfx_buf->vao);
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(dataes), dataes, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat), static_cast<void*>(0));
     glEnableVertexAttribArray(0);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _gfx_buf->ebo);
 
     GLuint indices[] = {
         0, 1, 2,
@@ -106,9 +106,9 @@ void App::Run() {
     while (!exec_body->ShouldExit()) {
         glClearColor(_clear_color.r, _clear_color.g, _clear_color.b, _clear_color.a);
         glClear(GL_COLOR_BUFFER_BIT|GL_STENCIL_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-        glBindBuffer(GL_ARRAY_BUFFER, _vbo);
-        glBindVertexArray(_vao);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ebo);
+        glBindBuffer(GL_ARRAY_BUFFER, _gfx_buf->vbo);
+        glBindVertexArray(_gfx_buf->vao);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _gfx_buf->ebo);
         eventHandle();
         exec_body->Step();
         SDL_GL_SwapWindow(_window);
@@ -131,9 +131,8 @@ void App::eventHandle() {
 
 App::~App() {
     _exec_body->Destroy();
-    glDeleteVertexArrays(1, &_vao);
-    glDeleteBuffers(1, &_vbo);
-    glDeleteBuffers(1, &_ebo);
+    GLGfxBufManager::Destroy();
+    SystemProgram::Destroy();
     SDL_DestroyWindow(_window);
     IMG_Quit();
     TTF_Quit();

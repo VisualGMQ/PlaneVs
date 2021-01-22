@@ -1,4 +1,4 @@
-#include "gl_shader.hpp"
+#include "engin/gl_shader.hpp"
 
 GLShader::GLShader(GLenum type, string filename) {
     _type = type;
@@ -43,7 +43,7 @@ void GLShader::compileShader() {
     if (!success) {
         char buf[1024] = {0};
         glGetShaderInfoLog(_shader, sizeof(buf), nullptr, buf);
-        Log("shader compile failed:\n" + string(buf));
+        Log("shader compile failed:\n%s", buf);
         invalid();
     } else {
         valid();

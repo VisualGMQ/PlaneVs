@@ -1,4 +1,4 @@
-#include "gl_program.hpp"
+#include "engin/gl_program.hpp"
 
 GLProgram::GLProgram() {
     createProgram();
@@ -32,7 +32,7 @@ void GLProgram::linkShaders() {
     if (!success) {
         char buf[1024] = {0};
         glGetProgramInfoLog(_program, sizeof(buf), nullptr, buf);
-        Log("program link failed:\n" + string(buf));
+        Log("program link failed:\n%s", buf);
         invalid();
     } else {
         valid();
@@ -75,10 +75,28 @@ void GLProgram::UniformVec4(const string name, vec4 value) {
 GLint GLProgram::getLocation(const string& name) {
     GLuint loc = glGetUniformLocation(_program, name.c_str());
     if (loc == -1)
-        Log(name + " location can't find");
+        Log("%s location can't find", name.c_str());
     return loc;
 }
 
 GLProgram::~GLProgram() {
     Destroy();
+}
+
+GLProgram* SystemProgram::_texture_program = nullptr;
+
+void SystemProgram::Init() {
+    GLShader vertex_shader(GL_VERTEX_SHADER, "shader/shader.vert");
+    GLShader frag_shader(GL_FRAGMENT_SHADER, "shader/shader.frag");
+    _texture_program = new GLProgram(vertex_shader, frag_shader);
+}
+
+GLProgram* SystemProgram::GetTextureProgram() {
+    if (!_texture_program)
+        Log("texture program is null");
+    return _texture_program;
+}
+
+void SystemProgram::Destroy() {
+    delete _texture_program;
 }

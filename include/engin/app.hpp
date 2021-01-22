@@ -1,13 +1,16 @@
 #ifndef APP_HPP
 #define APP_HPP
-#include "exec_body.hpp"
-#include "header.hpp"
 #include <iostream>
-#include "SDL.h"
-#include "SDL_image.h"
-#include "SDL_ttf.h"
+
+#include <SDL.h>
+#include <SDL_image.h>
+#include <SDL_ttf.h>
 #define GL_STATIC
-#include "GL/glew.h"
+#include <GL/glew.h>
+
+#include "base/exec_body.hpp"
+#include "base/header.hpp"
+#include "engin/gl_gfxbuf.hpp"
 using std::to_string;
 
 class App final{
@@ -25,9 +28,7 @@ class App final{
      const int _delay_time = 30;
      SDL_Event _event;
      ExecBody* _exec_body = nullptr;
-     GLuint _vbo = 0;
-     GLuint _vao = 0;
-     GLuint _ebo = 0;
+     GLGfxBufManager::GLGfxBuf* _gfx_buf = nullptr;
 
      void initSystem();
      void initGLBuffers();

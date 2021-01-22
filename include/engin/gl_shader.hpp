@@ -3,9 +3,11 @@
 #include <string>
 #include <fstream>
 #include <streambuf>
-#include "GL/glew.h"
-#include "header.hpp"
-#include "validable.hpp"
+
+#include <GL/glew.h>
+
+#include "base/header.hpp"
+#include "base/validable.hpp"
 using std::string;
 using std::ifstream;
 using std::istreambuf_iterator;

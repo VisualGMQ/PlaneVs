@@ -1,10 +1,12 @@
 #ifndef GL_PROGRAM_HPP
 #define GL_PROGRAM_HPP
 #include <string>
-#include "gl_shader.hpp"
-#include "glm/glm.hpp"
-#include "glm/gtc/type_ptr.hpp"
-#include "validable.hpp"
+
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include "base/validable.hpp"
+#include "engin/gl_shader.hpp"
 using glm::mat4;
 using glm::value_ptr;
 using glm::vec4;
@@ -31,6 +33,15 @@ class GLProgram : public Validable{
      void attachShaders(GLShader&, GLShader&);
      void linkShaders();
      GLint getLocation(const string& name);
+};
+
+class SystemProgram final {
+ public:
+     static void Init();
+     static GLProgram* GetTextureProgram();
+     static void Destroy();
+ private:
+     static GLProgram* _texture_program;
 };
 
 #endif

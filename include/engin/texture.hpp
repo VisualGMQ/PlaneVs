@@ -1,14 +1,16 @@
 #ifndef TEXTURE_HPP
 #define TEXTURE_HPP
 #include <string>
-#include "GL/glew.h"
-#include "SDL.h"
-#include "SDL_image.h"
-#include "glm/glm.hpp"
-#include "glm/ext/matrix_transform.hpp"
-#include "header.hpp"
-#include "validable.hpp"
-#include "gl_program.hpp"
+
+#include <GL/glew.h>
+#include <SDL.h>
+#include <SDL_image.h>
+#include <glm/glm.hpp>
+#include <glm/ext/matrix_transform.hpp>
+
+#include "base/header.hpp"
+#include "base/validable.hpp"
+#include "engin/gl_program.hpp"
 using std::string;
 using glm::vec2;
 using glm::vec3;
@@ -34,6 +36,7 @@ class Texture final : public Validable{
      Size GetSize() const;
      void Load(string filename);
      void Draw(GLProgram& program, ShapeInfo shape_info, ColorInfo color_info);
+
  private:
      void createTexture();
      void bufferTextureData(SDL_Surface* surface);

@@ -1,7 +1,8 @@
 #ifndef EXEC_BODY_HPP
 #define EXEC_BODY_HPP
-#include "SDL.h"
-#include "gl_program.hpp"
+#include <SDL.h>
+
+#include "engin/gl_program.hpp"
 
 class ExecBody {
  public:

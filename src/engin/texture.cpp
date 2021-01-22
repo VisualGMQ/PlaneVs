@@ -1,4 +1,4 @@
-#include "texture.hpp"
+#include "engin/texture.hpp"
 #include <iostream>
 
 Texture::Texture() {
@@ -12,7 +12,7 @@ Texture::Texture(string filename): Texture() {
 void Texture::Load(const string filename) {
     SDL_Surface* surface = IMG_Load(filename.c_str());
     if (!surface) {
-        Log("can't load image " + filename);
+        Log("can't load image %s", filename.c_str());
         invalid();
     } else {
         _size.w = surface->w;
