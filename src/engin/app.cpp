@@ -3,11 +3,10 @@
 App::App() {
     initSystem();
     Log("System inited");
-    SystemProgram::Init();
+    CreatePresetPrograms();
     Log("programs inited");
     initGLBuffers();
     Log("gl buffers inited");
-    prepDataForDraw();
 }
 
 void App::SetTitle(string title) {
@@ -52,39 +51,14 @@ void App::initSystem() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_STENCIL_TEST);
+
+    _projection = glm::ortho(0.0f, static_cast<float>(_window_size.w), static_cast<float>(_window_size.h), 0.0f, -1.0f, 1.0f);
 }
 
 void App::initGLBuffers() {
-    _gfx_buf = GLGfxBufManager::Create();
+    CreatePresetGfxBufs();
+    _gfx_buf = GLGfxBufManager::GetById(SYSTEM_GFXBUF_ID);
     Log("system gfx buffer created");
-}
-
-void App::prepDataForDraw() {
-    // TODO 这个地方的dataes要单独拎出来，因为有Texture内可能有其他的data要填充到Buffer中
-    GLfloat dataes[] = {
-    //  image_x image_y tex_x tex_y
-        -0.5,   -0.5,   0,    0,
-         0.5,   -0.5,   1,    0,
-        -0.5,    0.5,   0,    1,
-         0.5,    0.5,   1,    1
-    };
-
-    auto _gfx_buf = GLGfxBufManager::GetById(SystemGfxBufId);
-    glBindBuffer(GL_ARRAY_BUFFER, _gfx_buf->vbo);
-    glBindVertexArray(_gfx_buf->vao);
-
-    glBufferData(GL_ARRAY_BUFFER, sizeof(dataes), dataes, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat), static_cast<void*>(0));
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _gfx_buf->ebo);
-
-    GLuint indices[] = {
-        0, 1, 2,
-        1, 2, 3
-    };
-
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 }
 
 void App::SetExecBody(ExecBody* body) {
@@ -110,6 +84,7 @@ void App::Run() {
         glBindVertexArray(_gfx_buf->vao);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _gfx_buf->ebo);
         eventHandle();
+        GLProgramManager::GetById(TEXTURE_PROGRAM_ID)->UniformMat4("projection", _projection);
         exec_body->Step();
         SDL_GL_SwapWindow(_window);
         SDL_Delay(_delay_time);
@@ -132,7 +107,7 @@ void App::eventHandle() {
 App::~App() {
     _exec_body->Destroy();
     GLGfxBufManager::Destroy();
-    SystemProgram::Destroy();
+    GLProgramManager::Destroy();
     SDL_DestroyWindow(_window);
     IMG_Quit();
     TTF_Quit();

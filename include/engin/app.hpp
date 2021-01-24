@@ -8,10 +8,14 @@
 #define GL_STATIC
 #include <GL/glew.h>
 
+#include "base/log.hpp"
 #include "base/exec_body.hpp"
-#include "base/header.hpp"
+#include "base/id_generator.hpp"
 #include "engin/gl_gfxbuf.hpp"
 using std::to_string;
+
+constexpr isize WindowInitSize = {1024, 720};
+constexpr isize CanvaInitSize = {1024, 720};
 
 class App final{
  public:
@@ -22,18 +26,18 @@ class App final{
      ~App();
  private:
      SDL_Window* _window = nullptr;
-     Color _clear_color = {0.5, 0.5, 0.5, 1};
-     const Size _window_size = {1024, 720};
-     const Size _canva_size = {1024, 720};
+     color _clear_color = {0.5f, 0.5f, 0.5f, 1.0f};
+     const isize _window_size = WindowInitSize;
+     const isize _canva_size = CanvaInitSize;
      const int _delay_time = 30;
      SDL_Event _event;
      ExecBody* _exec_body = nullptr;
-     GLGfxBufManager::GLGfxBuf* _gfx_buf = nullptr;
+     GLGfxBuf* _gfx_buf = nullptr;
+     glm::mat4 _projection;
 
      void initSystem();
      void initGLBuffers();
      void eventHandle();
-     void prepDataForDraw();
      ExecBody* getExecBody();
 };
 

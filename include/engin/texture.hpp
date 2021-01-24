@@ -8,23 +8,26 @@
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
-#include "base/header.hpp"
+#include "base/log.hpp"
+#include "base/geomentry.hpp"
 #include "base/validable.hpp"
+#include "base/geomentry.hpp"
 #include "engin/gl_program.hpp"
+#include "engin/gl_gfxbuf.hpp"
 using std::string;
 using glm::vec2;
 using glm::vec3;
 using glm::mat4;
 
 struct ShapeInfo {
-    vec2 position;
-    vec2 scale = vec2(1.0f, 1.0f);
+    irect src_rect;
+    irect dst_rect;
     float degree = 0;
 };
 
 struct ColorInfo {
-    Color color = {1, 1, 1, 1};
-    Color key_color = {0, 0, 0, 1};
+    color tex_color = {1, 1, 1, 1};
+    color key_color = {0, 0, 0, 1};
 };
 
 class Texture final : public Validable{
@@ -33,18 +36,19 @@ class Texture final : public Validable{
      Texture(const string filename);
      Texture(const Texture&) = delete;
      Texture& operator=(const Texture&) = delete;
-     Size GetSize() const;
+     isize GetSize() const;
      void Load(string filename);
-     void Draw(GLProgram& program, ShapeInfo shape_info, ColorInfo color_info);
+     void Draw(irect src_rect, irect dst_rect);
+     void Draw(ShapeInfo shape_info, ColorInfo color_info);
 
  private:
      void createTexture();
      void bufferTextureData(SDL_Surface* surface);
      mat4 calcPositionInfo(float x, float y);
-     mat4 calcRotateScaleInfo(float scale_x, float scale_y, float angle_degree);
+     mat4 calcRotateScaleInfo(irect clip_area, isize dst_size, float angle_degree);
 
      GLuint _texture = 0;
-     Size _size = {0, 0};
+     isize _size = {0, 0};
 };
 
 #endif

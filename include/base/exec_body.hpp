@@ -3,6 +3,7 @@
 #include <SDL.h>
 
 #include "engin/gl_program.hpp"
+#include "base/geomentry.hpp"
 
 class ExecBody {
  public:
@@ -11,17 +12,17 @@ class ExecBody {
      virtual void Step() = 0;
      virtual void Destroy() = 0;
      virtual ~ExecBody() = default;
-     Size GetWindowSize() const {
+     isize GetWindowSize() const {
          int w, h;
          SDL_GetWindowSize(_window, &w, &h);
-         return {static_cast<float>(w), static_cast<float>(h)};
+         return {w, h};
      }
 
-     Size GetCanvaSize() const {
+     isize GetCanvaSize() const {
          return _canva_size;
      }
 
-     void DepsInject(SDL_Window* window, Size canva_size) {
+     void DepsInject(SDL_Window* window, isize canva_size) {
          _window = window;
          _canva_size = canva_size;
      }
@@ -38,7 +39,7 @@ class ExecBody {
  private:
      bool _should_exit = false;
      SDL_Window* _window = nullptr;
-     Size _canva_size;
+     isize _canva_size;
 };
 
 #endif

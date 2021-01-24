@@ -3,7 +3,7 @@
 using namespace std;
 
 int main(int argc, char** argv) {
-    ImageSheet sheet = ImageSheet::ReadFromJson("./test/sprite_reader.json");
+    ImageSheet sheet = ImageSheet::ReadFromJson("./test_resources/test_pngs/icons.json");
     printf("in sheet %s:\n", sheet.GetImageFilename().c_str());
     for (auto& image : sheet.GetImages()) {
         printf("\t<name, position, size, origin_size> = <%s, (%d, %d), (%d, %d), (%d, %d)>\n",

@@ -14,7 +14,6 @@ class GameBody final: public ExecBody {
      void EventHandle(SDL_Event&) override;
      virtual ~GameBody();
  private:
-     mat4 _projection = mat4(1.0f);
      Texture _texture;
 };
 

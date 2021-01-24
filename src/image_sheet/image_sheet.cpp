@@ -1,8 +1,8 @@
 #include "image_sheet/image_sheet.hpp"
 
-ImageInSheet::ImageInSheet(string name, Point position, Size size, Size origin_size) {
+ImageInSheet::ImageInSheet(string name, Point position, isize size, isize origin_size) {
     if (name.empty() ||
-            (position.x <= 0 && position.y <= 0) ||
+            (position.x < 0 || position.y < 0) ||
             (size.w <= 0 || size.h <= 0) ||
             (origin_size.w <= 0 || origin_size.h <= 0)) {
         invalid();
@@ -23,11 +23,11 @@ Point ImageInSheet::GetPosition() const {
     return _position;
 }
 
-Size ImageInSheet::GetSize() const {
+isize ImageInSheet::GetSize() const {
     return _size;
 }
 
-Size ImageInSheet::GetOriginSize() const {
+isize ImageInSheet::GetOriginSize() const {
     return _origin_size;
 }
 
@@ -63,8 +63,8 @@ vector<ImageInSheet> ImageSheet::readSpriteSheet(string filename) {
 
 vector<ImageInSheet> ImageSheet::parseJsonFile2ImageInfo(Json::Value& root) {
     vector<ImageInSheet> ret;
-    vector<string> members = root.getMemberNames();
-    Size size, origin_size;
+    Json::Value::Members members = root.getMemberNames();
+    isize size, origin_size;
     Point position;
     for (auto name : members) {
         Json::Value frame = root[name]["frame"];
@@ -88,12 +88,12 @@ vector<ImageInSheet> ImageSheet::parseJsonFile2ImageInfo(Json::Value& root) {
 Json::Value ImageSheet::readJsonFile(string filename) {
     ifstream file(filename);
     Json::Value root;
-    string content((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
-    file.close();
     if (file.fail()) {
         Log("%s not exists", filename.c_str());
         return root;
     }
+    string content((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
+    file.close();
     Json::CharReaderBuilder builder;
     std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
     Json::String error;

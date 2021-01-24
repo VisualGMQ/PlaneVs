@@ -6,7 +6,7 @@
 
 #include <GL/glew.h>
 
-#include "base/header.hpp"
+#include "base/log.hpp"
 #include "base/validable.hpp"
 using std::string;
 using std::ifstream;

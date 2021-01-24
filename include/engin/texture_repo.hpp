@@ -6,7 +6,8 @@
 #include <string>
 #include <filesystem>
 
-#include "base/header.hpp"
+#include "base/log.hpp"
+#include "base/geomentry.hpp"
 #include "engin/texture.hpp"
 #include "image_sheet/image_sheet.hpp"
 using std::map;
@@ -16,13 +17,16 @@ using std::optional;
 namespace fs = std::filesystem;
 
 struct TextureInSheet {
-    Point position;
-    Size size;
+    irect area;
     Texture* sheet;
 };
 
+class TextureRepo;
+void DbgPrintTextureRepo(TextureRepo* repo);
+
 class TextureRepo final {
  public:
+     friend void DbgPrintTextureRepo(TextureRepo* repo);
      static TextureRepo* CreateEmptyRepo();
      static TextureRepo* CreateFromDir(fs::path dir);
      static TextureRepo* CreateFromSheet(fs::path sheet);
@@ -30,6 +34,7 @@ class TextureRepo final {
      ~TextureRepo();
      void AddSheet(fs::path json_filename);
      optional<TextureInSheet> operator[](string name);
+     int GetSize() const;
      optional<TextureInSheet> Get(string name);
      bool Empty() const;
  private:
@@ -40,6 +45,7 @@ class TextureRepo final {
      TextureRepo() = default;
      void loadSheet(fs::path sheet_filename);
 };
+
 
 #endif
 

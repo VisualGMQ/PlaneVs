@@ -4,41 +4,36 @@
 
 #include <GL/glew.h>
 
-#include "base/header.hpp"
-using std::vector;
+#include "base/log.hpp"
+#include "base/manager.hpp"
 
-class GLGfxBufManager{
+class GLGfxBuf;
+
+using GLGfxBufManager = IdInstanceManager<GLGfxBuf>;
+
+class GLGfxBuf final: public HasID {
  public:
-     class GLGfxBuf final {
-      public:
-         friend GLGfxBufManager;
-         GLuint vao;
-         GLuint vbo;
-         GLuint ebo;
-         IdType GetId() const { return _id; }
-         GLGfxBuf(GLGfxBuf&) = delete;
-         GLGfxBuf operator=(const GLGfxBuf&) = delete;
-         ~GLGfxBuf() {
-             glDeleteBuffers(1, &vbo);
-             glDeleteBuffers(1, &ebo);
-             glDeleteVertexArrays(1, &vao);
-         }
-      private:
-         GLGfxBuf():_id(GenerateId()) {
-             glGenBuffers(1, &vbo);
-             glGenBuffers(1, &ebo);
-             glGenVertexArrays(1, &vao);
-         }
-         IdType _id;
-     };
-     static GLGfxBuf* Create();
-     static void FreeById(IdType id);
-     static GLGfxBuf* GetById(IdType id);
-     static void Destroy();
-
+     friend GLGfxBufManager;
+     GLuint vao;
+     GLuint vbo;
+     GLuint ebo;
+     GLGfxBuf(GLGfxBuf&) = delete;
+     GLGfxBuf operator=(const GLGfxBuf&) = delete;
+     ~GLGfxBuf() {
+         glDeleteBuffers(1, &vbo);
+         glDeleteBuffers(1, &ebo);
+         glDeleteVertexArrays(1, &vao);
+     }
  private:
-     static vector<GLGfxBuf*> _gfxbufs;
+     GLGfxBuf(IdType id):HasID(id) {
+         glGenBuffers(1, &vbo);
+         glGenBuffers(1, &ebo);
+         glGenVertexArrays(1, &vao);
+     }
 };
 
-#endif
+inline void CreatePresetGfxBufs() {
+    GLGfxBufManager::CreatePreset(SYSTEM_GFXBUF_ID);
+}
 
+#endif

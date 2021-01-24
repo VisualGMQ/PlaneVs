@@ -2,6 +2,11 @@
 
 vector<TextureRepo*> TextureRepo::_repos;
 
+void DbgPrintTextureRepo(TextureRepo* repo) {
+    for (auto& [key, value] : repo->_textures)
+        Log("name = %s, rect<%d %d %d %d>", key.c_str(), value.area.x, value.area.y, value.area.w, value.area.h);
+}
+
 void TextureRepo::FreeAllRepo() {
     for (TextureRepo* repo : _repos)
         delete repo;
@@ -70,8 +75,12 @@ void TextureRepo::loadSheet(fs::path sheet_filename) {
             Log("%s has in Repo", image.GetName().c_str());
             continue;
         }
-        _textures[image.GetName()] = {.position = image.GetPosition(), .size = image.GetSize(), .sheet = texture};
+        _textures[image.GetName()] = {.area = {image.GetPosition().x, image.GetPosition().y, image.GetSize().w, image.GetSize().h}, .sheet = texture};
     }
+}
+
+int TextureRepo::GetSize() const {
+    return _textures.size();
 }
 
 TextureRepo::~TextureRepo() {

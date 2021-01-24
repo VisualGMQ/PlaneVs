@@ -1,10 +1,10 @@
 #include "engin/gl_program.hpp"
 
-GLProgram::GLProgram() {
+GLProgram::GLProgram(IdType id):HasID(id) {
     createProgram();
 }
 
-GLProgram::GLProgram(GLShader& vertex_shader, GLShader& frag_shader) {
+GLProgram::GLProgram(IdType id, GLShader& vertex_shader, GLShader& frag_shader):HasID(id) {
     createProgram();
     ApplyShaders(vertex_shader, frag_shader);
 }
@@ -43,7 +43,7 @@ void GLProgram::Use() {
     glUseProgram(_program);
 }
 
-void GLProgram::Destroy() {
+void GLProgram::Delete() {
     glDeleteProgram(_program);
     invalid();
 }
@@ -80,23 +80,5 @@ GLint GLProgram::getLocation(const string& name) {
 }
 
 GLProgram::~GLProgram() {
-    Destroy();
-}
-
-GLProgram* SystemProgram::_texture_program = nullptr;
-
-void SystemProgram::Init() {
-    GLShader vertex_shader(GL_VERTEX_SHADER, "shader/shader.vert");
-    GLShader frag_shader(GL_FRAGMENT_SHADER, "shader/shader.frag");
-    _texture_program = new GLProgram(vertex_shader, frag_shader);
-}
-
-GLProgram* SystemProgram::GetTextureProgram() {
-    if (!_texture_program)
-        Log("texture program is null");
-    return _texture_program;
-}
-
-void SystemProgram::Destroy() {
-    delete _texture_program;
+    Delete();
 }
