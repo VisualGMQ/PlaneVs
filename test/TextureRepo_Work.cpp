@@ -1,6 +1,6 @@
-#include "base/exec_body.hpp"
+#include "base/texture_repo.hpp"
+#include "engin/exec_body.hpp"
 #include "engin/app.hpp"
-#include "engin/texture_repo.hpp"
 
 #include <iostream>
 using namespace std;
@@ -33,11 +33,9 @@ class TextureRepo_Work: public ExecBody {
 
     void drawSheet(string name, int x, int y) {
         auto texture = _repo->Get(name);
-        if (texture.has_value()) {
-            irect dst_rect = texture->area;
-            dst_rect.x = x;
-            dst_rect.y = y;
-            texture->sheet->Draw(texture->area, dst_rect);
+        if (texture) {
+            irect dst_rect = {x, y, texture->GetSize().w, texture->GetSize().h};
+            texture->Draw(nullptr, &dst_rect, nullptr, nullptr);
         } else {
             Log("%s can't find", name.c_str());
         }

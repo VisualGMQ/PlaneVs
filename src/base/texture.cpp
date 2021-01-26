@@ -1,10 +1,15 @@
-#include "engin/texture.hpp"
+#include "base/texture.hpp"
 
-Texture::Texture() {
-    createTexture();
+vector<Texture*> Texture::_instances;
+
+Texture* Texture::Create(const string filename) {
+    auto t = new Texture(filename);
+    _instances.push_back(t);
+    return t;
 }
 
-Texture::Texture(string filename): Texture() {
+Texture::Texture(string filename) {
+    createTexture();
     Load(filename);
 }
 
@@ -43,25 +48,54 @@ void Texture::bufferTextureData(SDL_Surface* surface) {
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Texture::Draw(irect src_rect, irect dst_rect) {
-    Draw({.src_rect = src_rect,
-          .dst_rect = dst_rect},
-          ColorInfo());
+void Texture::Draw(irect* src_rect, irect* dst_rect, color* tex_color, color* key_color) const {
+    Draw(src_rect, dst_rect, 0, FLIP_NONE, tex_color, key_color);
 }
 
-void Texture::Draw(ShapeInfo shape_info, ColorInfo color_info) {
-    if (!IsRectValid(shape_info.dst_rect)) {
-        Log("Texture::Draw dst_rect invalid");
-        return;
+void Texture::Draw(irect* src_rect, irect* dst_rect, float degree, FlipEnum flip, color* tex_color, color* key_color) const {
+    irect src_rect_;
+    irect dst_rect_;
+    if (!src_rect) {
+        src_rect_.x = 0;
+        src_rect_.y = 0;
+        src_rect_.w = GetSize().w;
+        src_rect_.h = GetSize().h;
+    } else {
+        src_rect_ = *src_rect;
     }
-    mat4 model = calcPositionInfo(shape_info.dst_rect.x, shape_info.dst_rect.y),
-         trans = calcRotateScaleInfo(shape_info.src_rect, {shape_info.dst_rect.w, shape_info.dst_rect.h}, shape_info.degree);
+    if (!dst_rect) {
+        dst_rect_.x = 0;
+        dst_rect_.y = 0;
+        dst_rect_.w = CanvaSize.w;
+        dst_rect_.h = CanvaSize.h;
+    } else {
+        dst_rect_ = *dst_rect;
+    }
+    color tex_color_, key_color_;
+    if (!tex_color) {
+        tex_color_.r = 1;
+        tex_color_.g = 1;
+        tex_color_.b = 1;
+        tex_color_.a = 1;
+    } else {
+        tex_color_ = *tex_color;
+    }
+    if (!key_color) {
+        key_color_.r = -1;
+        key_color_.g = -1;
+        key_color_.b = -1;
+        key_color_.a = -1;
+    } else {
+        key_color_ = *key_color;
+    }
+    mat4 model = calcPositionInfo(dst_rect_.x, dst_rect_.y),
+         trans = calcRotateScaleInfo(src_rect_, {dst_rect_.w, dst_rect_.h}, degree, flip);
     auto program = GLProgramManager::GetById(TEXTURE_PROGRAM_ID);
     program->UniformInt1("tex", 0);
     program->UniformMat4("view", model);
     program->UniformMat4("rotscale", trans);
-    program->UniformFloat4("color", color_info.tex_color.r, color_info.tex_color.g, color_info.tex_color.b, color_info.tex_color.a);
-    program->UniformFloat3("keycolor", color_info.key_color.r, color_info.key_color.g, color_info.key_color.b);
+    program->UniformFloat4("color", tex_color_.r, tex_color_.g, tex_color_.b, tex_color_.a);
+    program->UniformFloat3("keycolor", key_color_.r, key_color_.g, key_color_.b);
 
     glBindTexture(GL_TEXTURE_2D, _texture);
 
@@ -71,13 +105,13 @@ void Texture::Draw(ShapeInfo shape_info, ColorInfo color_info) {
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-mat4 Texture::calcPositionInfo(float x, float y) {
+mat4 Texture::calcPositionInfo(float x, float y) const {
     mat4 model = mat4(1.0f);
     model = glm::translate(model, vec3(x, y, 0));
     return model;
 }
 
-mat4 Texture::calcRotateScaleInfo(irect clip_area, isize dst_size, float angle_degree) {
+mat4 Texture::calcRotateScaleInfo(irect clip_area, isize dst_size, float angle_degree, FlipEnum flip) const {
     if (!IsRectValid(clip_area)) { // invalid means full texture
         clip_area.x = 0;
         clip_area.y = 0;
@@ -112,7 +146,20 @@ mat4 Texture::calcRotateScaleInfo(irect clip_area, isize dst_size, float angle_d
 
 
     mat4 trans = mat4(1.0f);
+    short sign_x = 1, sign_y = 1;
+    if (flip == FLIP_VERTICAL) {
+        sign_y = -1;
+    } else if (flip == FLIP_HORIZENTAL) {
+        sign_x = -1;
+    } else if (flip == FLIP_BOTH){
+        sign_x = -1;
+        sign_y = -1;
+    }
     trans = glm::rotate(trans, glm::radians(angle_degree), vec3(0, 0, 1));
-    trans = glm::scale(trans, vec3(dst_size.w, dst_size.h, 0));
+    trans = glm::scale(trans, vec3(sign_x*dst_size.w, sign_y*dst_size.h, 0));
     return trans;
+}
+
+Texture::~Texture() {
+    glDeleteTextures(1, &_texture);
 }

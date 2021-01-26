@@ -63,14 +63,13 @@ include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_image_INCLUDE_DIRS} ${SDL2_ttf_I
 link_directories(${SDL2_LIBRARY_DIRS} ${SDL2_image_LIBRARY_DIRS} ${SDL2_ttf_LIBRARY_DIRS} ${JSONCPP_LIBRARY_DIRS})
 link_libraries(${SDL2_LIBRARIES} ${SDL2_image_LIBRARIES} ${SDL2_ttf_LIBRARIES} ${JSONCPP_LIBRARIES})
 
-aux_source_directory(src SRC)
 aux_source_directory(src/base SRC)
 aux_source_directory(src/engin SRC)
 aux_source_directory(src/game SRC)
 aux_source_directory(src/image_sheet SRC)
 
-set(GAME_EXE_NAME ${CMAKE_PROJECT_NAME}.out)
-add_executable(${GAME_EXE_NAME} ${SRC})
+set(GAME_EXE_NAME ${CMAKE_PROJECT_NAME})
+add_executable(${GAME_EXE_NAME} ${SRC} src/main.cpp)
 
 set_target_properties(${GAME_EXE_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR})
 
@@ -82,5 +81,8 @@ target_link_libraries(${GAME_EXE_NAME} PRIVATE ${OPENGL_LIBRARIES} ${GLEW_LIBRAR
 if(DEFINED TEST)
     add_subdirectory(test)
     enable_testing()
-    add_test(NAME SimpleTest COMMAND SimpleTest)
+    add_test(NAME SpriteReader_Work COMMAND SpriteReader_Work)
+    add_test(NAME TextureRepo_Work COMMAND TextureRepo_Work)
+    add_test(NAME Sprite_Work COMMAND Sprite_Work)
+    add_test(NAME SpriteSheetCache_Work COMMAND SpriteSheetCache_Work)
 endif()

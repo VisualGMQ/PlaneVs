@@ -2,8 +2,9 @@
 #define MANAGER_HPP
 #include <vector>
 #include <type_traits>
+#include <typeinfo>
 
-#include "base/id_generator.hpp"
+#include "base/id.hpp"
 #include "base/log.hpp"
 using std::vector;
 
@@ -21,8 +22,8 @@ class IdInstanceManager {
          return create(id);
      }
 
-     static MANAGED_TYPE* Create() {
-         return create(GenerateId());
+     static MANAGED_TYPE* Create(IdType id) {
+         return create(id);
      }
 
      static void FreeById(IdType id) {
@@ -47,6 +48,8 @@ class IdInstanceManager {
      static void Destroy() {
          for (MANAGED_TYPE* buf : _instances)
              delete buf;
+         const auto& t = typeid(MANAGED_TYPE);
+         Log("Manager<%s> Destoryed", t.name());
      }
 
  private:

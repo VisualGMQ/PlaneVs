@@ -2,9 +2,14 @@
 #define EXEC_BODY_HPP
 #include <SDL.h>
 
-#include "engin/gl_program.hpp"
+#include "base/log.hpp"
 #include "base/geomentry.hpp"
 
+/*
+ * @brief execute body, can send to App and run
+ * @warn suggest put `clean up` phase into Destroy rather than deconstructor.And **Never** call Destroy() in deconstructor.
+ *       Due to the auto deconstruction by main, your Destroy function will be call twice(by class App, and function main).
+ */
 class ExecBody {
  public:
      virtual void Init() = 0;
@@ -18,13 +23,8 @@ class ExecBody {
          return {w, h};
      }
 
-     isize GetCanvaSize() const {
-         return _canva_size;
-     }
-
-     void DepsInject(SDL_Window* window, isize canva_size) {
+     void DepsInject(SDL_Window* window) {
          _window = window;
-         _canva_size = canva_size;
      }
 
      bool ShouldExit() const {
@@ -39,7 +39,6 @@ class ExecBody {
  private:
      bool _should_exit = false;
      SDL_Window* _window = nullptr;
-     isize _canva_size;
 };
 
 #endif

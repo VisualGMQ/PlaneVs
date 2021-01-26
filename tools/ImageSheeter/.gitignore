@@ -1,6 +1,0 @@
-*.out
-*.o
-.cquery
-cache
-tests/*.out
-src/*.o

@@ -6,9 +6,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "base/log.hpp"
-#include "base/id_generator.hpp"
 #include "base/validable.hpp"
-#include "engin/gl_shader.hpp"
+#include "base/gl_shader.hpp"
 #include "base/manager.hpp"
 using glm::mat4;
 using glm::value_ptr;

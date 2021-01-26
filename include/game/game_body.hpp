@@ -1,7 +1,7 @@
 #ifndef GAME_BODY_HPP
 #define GAME_BODY_HPP
-#include "base/exec_body.hpp"
-#include "engin/texture.hpp"
+#include "engin/sprite.hpp"
+#include "engin/exec_body.hpp"
 using glm::mat4;
 using std::to_string;
 
@@ -12,9 +12,9 @@ class GameBody final: public ExecBody {
      void Step() override;
      void Destroy() override;
      void EventHandle(SDL_Event&) override;
-     virtual ~GameBody();
+     virtual ~GameBody() = default;
  private:
-     Texture _texture;
+     Sprite* _sprite = nullptr;
 };
 
 #endif

@@ -1,4 +1,4 @@
-#include "engin/gl_shader.hpp"
+#include "base/gl_shader.hpp"
 
 GLShader::GLShader(GLenum type, string filename) {
     _type = type;

@@ -1,10 +1,11 @@
 #ifndef ID_GENERATOR_HPP
 #define ID_GENERATOR_HPP
+#include "base/log.hpp"
 
 using IdType = unsigned int;
 
 enum PresetResourcesId : IdType {
-    INVALID_ID = 0,
+    ID_ANY = 0,
     SYSTEM_GFXBUF_ID,
     TEXTURE_PROGRAM_ID,
     GEOM_PROGRAM_ID,
@@ -14,6 +15,9 @@ enum PresetResourcesId : IdType {
 class HasID {
  public:
      HasID(IdType id) {
+         if (id <= FIRST_ID) {
+             Log("id duplicated with preset id");
+         }
          _id = id;
      }
      IdType GetId() const {
@@ -22,11 +26,6 @@ class HasID {
  private:
      IdType _id;
 };
-
-inline IdType GenerateId() {
-    static IdType _cur_id = FIRST_ID;
-    return _cur_id++;
-}
 
 #endif
 

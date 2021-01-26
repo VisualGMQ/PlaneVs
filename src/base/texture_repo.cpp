@@ -1,11 +1,27 @@
-#include "engin/texture_repo.hpp"
+#include "base/texture_repo.hpp"
+
+void TextureInSheet::Draw(irect* src_rect, irect* dst_rect, color* tex_color, color* key_color) const {
+    Draw(src_rect, dst_rect, 0, FLIP_NONE, tex_color, key_color);
+}
+
+void TextureInSheet::Draw(irect* src_rect, irect* dst_rect, float degree, FlipEnum flip, color* tex_color, color* key_color) const {
+    if (!_sheet) {
+        Log("TextureInSheet::Draw sheet is nullptr");
+        return;
+    }
+    irect src_rect_;
+    if (!src_rect) {
+        src_rect_ = _area;
+    } else {
+        src_rect_.x = _area.x + src_rect->x;
+        src_rect_.y = _area.y + src_rect->y;
+        src_rect_.w = GetSize().w;
+        src_rect_.h = GetSize().h;
+    }
+    _sheet->Draw(&src_rect_, dst_rect, degree, flip, tex_color, key_color);
+}
 
 vector<TextureRepo*> TextureRepo::_repos;
-
-void DbgPrintTextureRepo(TextureRepo* repo) {
-    for (auto& [key, value] : repo->_textures)
-        Log("name = %s, rect<%d %d %d %d>", key.c_str(), value.area.x, value.area.y, value.area.w, value.area.h);
-}
 
 void TextureRepo::FreeAllRepo() {
     for (TextureRepo* repo : _repos)
@@ -38,14 +54,14 @@ TextureRepo* TextureRepo::CreateFromDir(fs::path dir) {
     return repo;
 }
 
-optional<TextureInSheet> TextureRepo::Get(string name) {
-    if (_textures.find(name) == _textures.end())
-        return std::nullopt;
-    return optional(_textures[name]);
+TextureInSheet* TextureRepo::operator[](string name) {
+    return Get(name);
 }
 
-optional<TextureInSheet> TextureRepo::operator[](string name) {
-    return Get(name);
+TextureInSheet* TextureRepo::Get(string name) {
+    if (_textures.find(name) == _textures.end())
+        return nullptr;
+    return &_textures[name];
 }
 
 bool TextureRepo::Empty() const {
@@ -75,15 +91,10 @@ void TextureRepo::loadSheet(fs::path sheet_filename) {
             Log("%s has in Repo", image.GetName().c_str());
             continue;
         }
-        _textures[image.GetName()] = {.area = {image.GetPosition().x, image.GetPosition().y, image.GetSize().w, image.GetSize().h}, .sheet = texture};
+        _textures[image.GetName()] = TextureInSheet({image.GetPosition().x, image.GetPosition().y, image.GetSize().w, image.GetSize().h}, texture);
     }
 }
 
 int TextureRepo::GetSize() const {
     return _textures.size();
-}
-
-TextureRepo::~TextureRepo() {
-    for (auto& [key, texture] : _sheets)
-        delete texture;
 }

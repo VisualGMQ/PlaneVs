@@ -63,7 +63,7 @@ void App::initGLBuffers() {
 
 void App::SetExecBody(ExecBody* body) {
     _exec_body = body;
-    _exec_body->DepsInject(_window, _canva_size);
+    _exec_body->DepsInject(_window);
     _exec_body->Init();
     Log("executable body inited");
 }
@@ -105,7 +105,9 @@ void App::eventHandle() {
 }
 
 App::~App() {
+    Log("App cleanup");
     _exec_body->Destroy();
+    Texture::Destroy();
     GLGfxBufManager::Destroy();
     GLProgramManager::Destroy();
     SDL_DestroyWindow(_window);
