@@ -86,3 +86,7 @@ if(DEFINED TEST)
     add_test(NAME Sprite_Work COMMAND Sprite_Work)
     add_test(NAME SpriteSheetCache_Work COMMAND SpriteSheetCache_Work)
 endif()
+
+if (DEFINED TOOL)
+    add_subdirectory(tool)
+endif()
