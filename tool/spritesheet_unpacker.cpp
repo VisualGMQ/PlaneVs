@@ -134,7 +134,7 @@ void ProcessImage(string filename, string output, int row, int col, int padding)
             rect.x = w*i + padding;
             rect.y = h*j + padding;
             SDL_BlitSurface(surface, &rect, save_surface, nullptr);
-            fs::path png_filename = filename+to_string(i+1)+"x"+to_string(j+1)+extension;
+            fs::path png_filename = filename+to_string(j+1)+"x"+to_string(i+1)+extension;
             fs::path file_path = output_dir/png_filename;
             IMG_SavePNG(save_surface, file_path.string().c_str());
         }
