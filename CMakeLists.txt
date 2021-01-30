@@ -90,3 +90,7 @@ if(DEFINED TEST)
     add_test(NAME Animation_Work COMMAND Animation_Work)
     add_test(NAME Texture_Work COMMAND Texture_Work)
 endif()
+
+if (DEFINED TOOL)
+    add_subdirectory(tool)
+endif()
