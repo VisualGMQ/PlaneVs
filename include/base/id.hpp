@@ -15,9 +15,6 @@ enum PresetResourcesId : IdType {
 class HasID {
  public:
      HasID(IdType id) {
-         if (id <= FIRST_ID) {
-             Log("id duplicated with preset id");
-         }
          _id = id;
      }
      IdType GetId() const {

@@ -1,13 +1,13 @@
 #ifndef GEOMENTRY_HPP
 #define GEOMENTRY_HPP
 
-template <typename T>
 /*
  * @param x     center x in rect
  * @param y     center y in rect
  * @param w     width in rect
  * @param h     height in rect
  */
+template <typename T>
 struct rect_base {
     T x = T();
     T y = T();

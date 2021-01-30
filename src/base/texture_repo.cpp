@@ -1,10 +1,10 @@
 #include "base/texture_repo.hpp"
 
-void TextureInSheet::Draw(irect* src_rect, irect* dst_rect, color* tex_color, color* key_color) const {
+void TextureInSheet::Draw(irect* src_rect, irect* dst_rect, icolor* tex_color, icolor* key_color) const {
     Draw(src_rect, dst_rect, 0, FLIP_NONE, tex_color, key_color);
 }
 
-void TextureInSheet::Draw(irect* src_rect, irect* dst_rect, float degree, FlipEnum flip, color* tex_color, color* key_color) const {
+void TextureInSheet::Draw(irect* src_rect, irect* dst_rect, float degree, FlipEnum flip, icolor* tex_color, icolor* key_color) const {
     if (!_sheet) {
         Log("TextureInSheet::Draw sheet is nullptr");
         return;
@@ -21,37 +21,32 @@ void TextureInSheet::Draw(irect* src_rect, irect* dst_rect, float degree, FlipEn
     _sheet->Draw(&src_rect_, dst_rect, degree, flip, tex_color, key_color);
 }
 
-vector<TextureRepo*> TextureRepo::_repos;
-
-void TextureRepo::FreeAllRepo() {
-    for (TextureRepo* repo : _repos)
-        delete repo;
-}
+forward_list<TextureRepo> TextureRepo::_instances;
 
 TextureRepo* TextureRepo::CreateEmptyRepo() {
-    TextureRepo* repo = new TextureRepo;
-    _repos.push_back(repo);
-    return repo;
+    TextureRepo repo;
+    _instances.push_front(repo);
+    return &_instances.front();
 }
 
 TextureRepo* TextureRepo::CreateFromSheet(fs::path sheet) {
-    TextureRepo* repo = new TextureRepo;
-    repo->AddSheet(sheet);
-    _repos.push_back(repo);
-    return repo;
+    TextureRepo repo;
+    repo.AddSheet(sheet);
+    _instances.push_front(repo);
+    return &_instances.front();
 }
 
 TextureRepo* TextureRepo::CreateFromDir(fs::path dir) {
-    TextureRepo* repo = new TextureRepo;
+    TextureRepo repo;
     if (fs::exists(dir) && fs::is_directory(dir)) {
         for (auto& p : fs::recursive_directory_iterator(dir)) {
             if (p.path().extension() == ".json") {
-                repo->AddSheet(p.path());
+                repo.AddSheet(p.path());
             }
         }
     }
-    _repos.push_back(repo);
-    return repo;
+    _instances.push_front(repo);
+    return &_instances.front();
 }
 
 TextureInSheet* TextureRepo::operator[](string name) {
@@ -79,12 +74,11 @@ void TextureRepo::loadSheet(fs::path sheet_filename) {
     }
     auto image_sheet = ImageSheet::ReadFromJson(sheet_filename);
     string image_filename = image_sheet.GetImageFilename();
-    Texture* texture = nullptr;
     if (_sheets.find(image_filename) != _sheets.end()) {
         Log("%s has exists in Repo", image_filename.c_str());
         return;
     }
-    texture = new Texture(image_filename);
+    Texture* texture = Texture::Create(image_filename);
     _sheets[image_filename] = texture;
     for (const ImageInSheet& image : image_sheet.GetImages()) {
         if (_textures.find(image.GetName()) != _textures.end()) {

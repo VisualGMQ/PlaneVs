@@ -1,20 +1,18 @@
 #ifndef TEXTURE_REPO_HPP
 #define TEXTURE_REPO_HPP
 #include <map>
-#include <optional>
-#include <vector>
+#include <forward_list>
 #include <string>
 #include <filesystem>
 
 #include "base/log.hpp"
 #include "base/geomentry.hpp"
-#include "base/drawable.hpp"
+#include "base/texture_drawable.hpp"
 #include "base/texture.hpp"
 #include "image_sheet/image_sheet.hpp"
 using std::map;
 using std::string;
-using std::vector;
-using std::optional;
+using std::forward_list;
 namespace fs = std::filesystem;
 
 class TextureInSheet final: public ITexture {
@@ -22,8 +20,8 @@ class TextureInSheet final: public ITexture {
     TextureInSheet() = default;
     TextureInSheet(irect area, Texture* sheet):_area(area),_sheet(sheet) {}
     isize GetSize() const override { return {_area.w, _area.h}; }
-    void Draw(irect* src_rect, irect* dst_rect, color* tex_color, color* key_color) const override;
-    void Draw(irect* src_rect, irect* dst_rect, float degree, FlipEnum flip, color* tex_color, color* key_color) const override;
+    void Draw(irect* src_rect, irect* dst_rect, icolor* tex_color, icolor* key_color) const override;
+    void Draw(irect* src_rect, irect* dst_rect, float degree, FlipEnum flip, icolor* tex_color, icolor* key_color) const override;
 
  private:
     irect _area;
@@ -32,12 +30,9 @@ class TextureInSheet final: public ITexture {
 
 class TextureRepo final {
  public:
-    friend void DbgPrintTextureRepo(TextureRepo* repo);
-
     static TextureRepo* CreateEmptyRepo();
     static TextureRepo* CreateFromDir(fs::path dir);
     static TextureRepo* CreateFromSheet(fs::path sheet);
-    static void FreeAllRepo();
     ~TextureRepo() = default;
     void AddSheet(fs::path json_filename);
     TextureInSheet* operator[](string name);
@@ -48,14 +43,12 @@ class TextureRepo final {
  private:
     map<string, TextureInSheet> _textures;
     map<string, Texture*> _sheets;
-    static vector<TextureRepo*> _repos;
+    static forward_list<TextureRepo> _instances;
 
     TextureRepo() = default;
     void loadSheet(fs::path sheet_filename);
 };
 
-
-void DbgPrintTextureRepo(TextureRepo* repo);
 
 #endif
 

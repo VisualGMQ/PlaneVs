@@ -1,4 +1,4 @@
-include_directories(${CMAKE_SOURCE_DIR}/include ${GLM_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS})
+include_directories(${CMAKE_SOURCE_DIR}/include  ${OPENGL_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS})
 link_directories(${OPENGL_LIBRARY_DIRS} ${GLEW_LIBRARY_DIRS})
 link_libraries(${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
 
@@ -11,3 +11,5 @@ add_executable(SpriteReader_Work ./SpriteReader_Work.cpp ${TEST_SRC})
 add_executable(TextureRepo_Work ./TextureRepo_Work.cpp ${TEST_SRC})
 add_executable(Sprite_Work ./Sprite_Work.cpp ${TEST_SRC})
 add_executable(SpriteSheetCache_Work ./SpriteSheetCache_Work.cpp ${TEST_SRC})
+add_executable(Animation_Work ./Animation_Work.cpp ${TEST_SRC})
+add_executable(Texture_Work ./Texture_Work.cpp ${TEST_SRC})

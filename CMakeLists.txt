@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(PlaneVS)
+project(PlaneFight)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_compile_options(-std=c++17)
@@ -16,7 +16,7 @@ find_package(PkgConfig QUIET)
 find_package(SDL2 QUIET)
 find_package(SDL2_image QUIET)
 find_package(SDL2_ttf QUIET)
-find_package(GLM QUIET)
+find_package(SDL2_mixer QUIET)
 find_package(JsonCpp QUIET)
 # find_package(GLEW QUIET)
 
@@ -33,22 +33,22 @@ if(NOT SDL2_IMAGE_FOUND)
     pkg_search_module(SDL2_image REQUIRED sdl2_image)
 endif()
 
-if(NOT SDL2_IMAGE_FOUND)
+if(NOT SDL2_TTF_FOUND)
     message(WARNING "cmake can't find SDL2_ttf, use pkg-config")
     pkg_check_modules(REQUIRED SDL2_ttf)
     pkg_search_module(SDL2_ttf REQUIRED sdl2_ttf)
+endif()
+
+if(NOT SDL2_MIXER_FOUND)
+    message(WARNING "cmake can't find SDL2_mixer, use pkg-config")
+    pkg_check_modules(REQUIRED SDL2_mixer)
+    pkg_search_module(SDL2_mixer REQUIRED sdl2_mixer)
 endif()
 
 if(NOT GLEW_FOUND)
     message(WARNING "cmake can't find glew, use pkg-config")
     pkg_check_modules(REQUIRED GLEW)
     pkg_search_module(GLEW REQUIRED glew)
-endif()
-
-if(NOT GLM_FOUND)
-    message(WARNING "cmake can't find glm, use pkg-config")
-    pkg_check_modules(REQUIRED GLM)
-    pkg_search_module(GLM REQUIRED glm)
 endif()
 
 if(NOT JsonCpp_FOUND)
@@ -59,9 +59,9 @@ endif()
 
 find_package(OpenGL REQUIRED)
 
-include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_image_INCLUDE_DIRS} ${SDL2_ttf_INCLUDE_DIRS} ${JSONCPP_INCLUDE_DIRS})
-link_directories(${SDL2_LIBRARY_DIRS} ${SDL2_image_LIBRARY_DIRS} ${SDL2_ttf_LIBRARY_DIRS} ${JSONCPP_LIBRARY_DIRS})
-link_libraries(${SDL2_LIBRARIES} ${SDL2_image_LIBRARIES} ${SDL2_ttf_LIBRARIES} ${JSONCPP_LIBRARIES})
+include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_mixer_INCLUDE_DIRS} ${SDL2_image_INCLUDE_DIRS} ${SDL2_ttf_INCLUDE_DIRS} ./external ${JSONCPP_INCLUDE_DIRS})
+link_directories(${SDL2_LIBRARY_DIRS} ${SDL2_mixer_LIBRARY_DIRS} ${SDL2_image_LIBRARY_DIRS} ${SDL2_ttf_LIBRARY_DIRS} ${JSONCPP_LIBRARY_DIRS})
+link_libraries(${SDL2_LIBRARIES} ${SDL2_mixer_LIBRARIES} ${SDL2_image_LIBRARIES} ${SDL2_ttf_LIBRARIES} ${JSONCPP_LIBRARIES})
 
 aux_source_directory(src/base SRC)
 aux_source_directory(src/engin SRC)
@@ -73,7 +73,9 @@ add_executable(${GAME_EXE_NAME} ${SRC} src/main.cpp)
 
 set_target_properties(${GAME_EXE_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR})
 
-target_include_directories(${GAME_EXE_NAME} PRIVATE ./include ${GLM_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS})
+message(STATUS ${GLEW_INCLDUE_DIRS})
+
+target_include_directories(${GAME_EXE_NAME} PRIVATE ./include ${OPENGL_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS})
 target_link_directories(${GAME_EXE_NAME} PRIVATE ${OPENGL_LIBRARY_DIRS} ${GLEW_LIBRARY_DIRS})
 target_link_libraries(${GAME_EXE_NAME} PRIVATE ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
 
@@ -85,4 +87,6 @@ if(DEFINED TEST)
     add_test(NAME TextureRepo_Work COMMAND TextureRepo_Work)
     add_test(NAME Sprite_Work COMMAND Sprite_Work)
     add_test(NAME SpriteSheetCache_Work COMMAND SpriteSheetCache_Work)
+    add_test(NAME Animation_Work COMMAND Animation_Work)
+    add_test(NAME Texture_Work COMMAND Texture_Work)
 endif()

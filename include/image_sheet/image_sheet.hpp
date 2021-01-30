@@ -31,6 +31,7 @@ class ImageInSheet final : public Validable{
      Point GetPosition() const;
      isize GetSize() const;
      isize GetOriginSize() const;
+
  private:
      Point _position;
      isize _size;

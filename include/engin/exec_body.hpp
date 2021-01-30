@@ -12,33 +12,33 @@
  */
 class ExecBody {
  public:
-     virtual void Init() = 0;
-     virtual void EventHandle(SDL_Event& event) = 0;
-     virtual void Step() = 0;
-     virtual void Destroy() = 0;
-     virtual ~ExecBody() = default;
-     isize GetWindowSize() const {
-         int w, h;
-         SDL_GetWindowSize(_window, &w, &h);
-         return {w, h};
-     }
+    virtual void Init() = 0;
+    virtual void EventHandle(SDL_Event& event) = 0;
+    virtual void Step() = 0;
+    virtual void Destroy() = 0;
+    virtual ~ExecBody() = default;
+    isize GetWindowSize() const {
+        int w, h;
+        SDL_GetWindowSize(_window, &w, &h);
+        return {w, h};
+    }
 
-     void DepsInject(SDL_Window* window) {
-         _window = window;
-     }
+    void DepsInject(SDL_Window* window) {
+        _window = window;
+    }
 
-     bool ShouldExit() const {
-         return _should_exit;
-     }
+    bool ShouldExit() const {
+        return _should_exit;
+    }
 
-     void Exit() {
-        _should_exit = true;
-        Log("Game Exited");
-     }
+    void Exit() {
+       _should_exit = true;
+       Log("Game Exited");
+    }
 
  private:
-     bool _should_exit = false;
-     SDL_Window* _window = nullptr;
+    bool _should_exit = false;
+    SDL_Window* _window = nullptr;
 };
 
 #endif

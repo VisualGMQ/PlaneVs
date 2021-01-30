@@ -1,11 +1,11 @@
 #include "engin/sprite_sheet_cache.hpp"
 
-vector<SpriteSheetCache> SpriteSheetCache::_instances;
+forward_list<SpriteSheetCache> SpriteSheetCache::_instances;
 
 SpriteSheetCache* SpriteSheetCache::Create(string sheet_filename) {
     SpriteSheetCache cache(sheet_filename);
-    _instances.push_back(std::move(cache));
-    return &_instances.back();
+    SpriteSheetCache::_instances.push_front(cache);
+    return &SpriteSheetCache::_instances.front();
 }
 
 Sprite* SpriteSheetCache::CreateSprite(string name, irect* area) {

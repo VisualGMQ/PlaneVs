@@ -15,6 +15,7 @@
 #include "base/gl_gfxbuf.hpp"
 #include "base/texture.hpp"
 #include "engin/exec_body.hpp"
+#include "engin/sprite.hpp"
 using std::to_string;
 
 class App final{

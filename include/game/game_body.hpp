@@ -13,6 +13,7 @@ class GameBody final: public ExecBody {
      void Destroy() override;
      void EventHandle(SDL_Event&) override;
      virtual ~GameBody() = default;
+
  private:
      Sprite* _sprite = nullptr;
 };
