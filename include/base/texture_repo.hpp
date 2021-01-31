@@ -10,6 +10,7 @@
 #include "base/texture_drawable.hpp"
 #include "base/texture.hpp"
 #include "image_sheet/image_sheet.hpp"
+#include "base/destroyable.hpp"
 using std::map;
 using std::string;
 using std::forward_list;
@@ -28,17 +29,18 @@ class TextureInSheet final: public ITexture {
     Texture* _sheet = nullptr;
 };
 
-class TextureRepo final {
+class TextureRepo final: public Destroyable {
  public:
     static TextureRepo* CreateEmptyRepo();
     static TextureRepo* CreateFromDir(fs::path dir);
     static TextureRepo* CreateFromSheet(fs::path sheet);
-    ~TextureRepo() = default;
+    ~TextureRepo();
     void AddSheet(fs::path json_filename);
     TextureInSheet* operator[](string name);
     int GetSize() const;
     TextureInSheet* Get(string name);
     bool Empty() const;
+    void Destroy() override;
 
  private:
     map<string, TextureInSheet> _textures;

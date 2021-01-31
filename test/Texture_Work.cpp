@@ -24,6 +24,8 @@ class Texture_Work: public ExecBody {
     }
 
     void Destroy() override {
+        _texture1->Destroy();
+        _texture2->Destroy();
     }
 
     virtual ~Texture_Work() = default;

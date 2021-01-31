@@ -7,6 +7,9 @@ void GameBody::Init() {
     _sprite->RotateTo(20);
     _sprite->Show();
     _sprite->SetColor(80, 80, 255);
+
+    Bgm::Load("./test/test_resources/Mind Control.ogg");
+    Bgm::FadeIn(-1, 3000);
 }
 
 void GameBody::EventHandle(SDL_Event& event) {

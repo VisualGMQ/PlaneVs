@@ -24,20 +24,20 @@ void TextureInSheet::Draw(irect* src_rect, irect* dst_rect, float degree, FlipEn
 forward_list<TextureRepo> TextureRepo::_instances;
 
 TextureRepo* TextureRepo::CreateEmptyRepo() {
-    TextureRepo repo;
-    _instances.push_front(repo);
+    _instances.push_front(TextureRepo());
     return &_instances.front();
 }
 
 TextureRepo* TextureRepo::CreateFromSheet(fs::path sheet) {
-    TextureRepo repo;
+    _instances.push_front(TextureRepo());
+    TextureRepo& repo = _instances.front();
     repo.AddSheet(sheet);
-    _instances.push_front(repo);
-    return &_instances.front();
+    return &repo;
 }
 
 TextureRepo* TextureRepo::CreateFromDir(fs::path dir) {
-    TextureRepo repo;
+    _instances.push_front(TextureRepo());
+    TextureRepo& repo = _instances.front();
     if (fs::exists(dir) && fs::is_directory(dir)) {
         for (auto& p : fs::recursive_directory_iterator(dir)) {
             if (p.path().extension() == ".json") {
@@ -45,8 +45,7 @@ TextureRepo* TextureRepo::CreateFromDir(fs::path dir) {
             }
         }
     }
-    _instances.push_front(repo);
-    return &_instances.front();
+    return &repo;
 }
 
 TextureInSheet* TextureRepo::operator[](string name) {
@@ -91,4 +90,13 @@ void TextureRepo::loadSheet(fs::path sheet_filename) {
 
 int TextureRepo::GetSize() const {
     return _textures.size();
+}
+
+TextureRepo::~TextureRepo() {
+    for (auto& [key, value] : _sheets)
+        value->Destroy();
+}
+
+void TextureRepo::Destroy() {
+    _instances.remove_if([&](TextureRepo& repo){ return &repo == this; });
 }

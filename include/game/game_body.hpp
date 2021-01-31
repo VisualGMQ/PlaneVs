@@ -2,6 +2,7 @@
 #define GAME_BODY_HPP
 #include "engin/sprite.hpp"
 #include "engin/exec_body.hpp"
+#include "engin/bgm.hpp"
 using glm::mat4;
 using std::to_string;
 

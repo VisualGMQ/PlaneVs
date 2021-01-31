@@ -166,3 +166,12 @@ mat4 Texture::calcRotateScaleInfo(irect clip_area, isize dst_size, float angle_d
 Texture::~Texture() {
     glDeleteTextures(1, &_texture);
 }
+
+void Texture::Destroy() {
+    auto it = std::find(_instances.begin(), _instances.end(), this);
+    if (it != _instances.end()) {
+        Texture* tmp = *it;
+        _instances.erase(it);
+        delete tmp;
+    }
+}

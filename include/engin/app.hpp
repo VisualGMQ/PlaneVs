@@ -5,6 +5,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
+#include <SDL_mixer.h>
 #define GL_STATIC
 #include <GL/glew.h>
 #include <glm/glm.hpp>
@@ -16,6 +17,8 @@
 #include "base/texture.hpp"
 #include "engin/exec_body.hpp"
 #include "engin/sprite.hpp"
+#include "engin/bgm.hpp"
+#include "engin/music.hpp"
 using std::to_string;
 
 class App final{

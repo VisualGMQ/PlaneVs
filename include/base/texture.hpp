@@ -16,16 +16,17 @@
 #include "base/gl_program.hpp"
 #include "base/gl_gfxbuf.hpp"
 #include "base/itexture.hpp"
+#include "base/destroyable.hpp"
 
 using std::string;
 using glm::vec2;
 using glm::vec3;
 using glm::mat4;
 
-class Texture final : public Validable, public ITexture {
+class Texture final: public Validable, public ITexture, public Destroyable {
  public:
      static Texture* Create(const string filename);
-     static void Destroy() {
+     static void DestroyAll() {
          for (Texture* t : _instances)
              delete t; 
          Log("Textures deleted");
@@ -38,6 +39,7 @@ class Texture final : public Validable, public ITexture {
      void Load(string filename);
      void Draw(irect* src_rect, irect* dst_rect, icolor* tex_color, icolor* key_color) const override;
      void Draw(irect* src_rect, irect*, float degree, FlipEnum flip, icolor* tex_color, icolor* key_color) const override;
+     void Destroy() override;
      ~Texture();
 
  private:

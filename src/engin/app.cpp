@@ -30,6 +30,8 @@ void App::initSystem() {
 
     IMG_Init(IMG_INIT_JPG|IMG_INIT_PNG);
     TTF_Init();
+    Mix_Init(MIX_INIT_OGG|MIX_INIT_MP3|MIX_INIT_FLAC|MIX_INIT_MID|MIX_INIT_MOD);
+    Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 4096);
     Log("SDL expansions inited");
 
     _window = SDL_CreateWindow(
@@ -107,11 +109,14 @@ void App::eventHandle() {
 App::~App() {
     Log("App cleanup");
     _exec_body->Destroy();
-    Texture::Destroy();
+    Texture::DestroyAll();
     GLGfxBufManager::Destroy();
     GLProgramManager::Destroy();
+    Bgm::Destroy();
     SDL_DestroyWindow(_window);
     IMG_Quit();
     TTF_Quit();
+    Mix_CloseAudio();
+    Mix_Quit();
     SDL_Quit();
 }
