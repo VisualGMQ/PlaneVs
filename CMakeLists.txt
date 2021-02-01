@@ -79,16 +79,26 @@ target_include_directories(${GAME_EXE_NAME} PRIVATE ./include ${OPENGL_INCLUDE_D
 target_link_directories(${GAME_EXE_NAME} PRIVATE ${OPENGL_LIBRARY_DIRS} ${GLEW_LIBRARY_DIRS})
 target_link_libraries(${GAME_EXE_NAME} PRIVATE ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
 
+# macro for add test
+macro(MADD_TEST test_name)
+    add_test(NAME ${test_name}
+             COMMAND ${test_name}
+             WORKING_DIRECTORY test)
+endmacro()
+
 # Enable Compile Tests for PlaneVS
 if(DEFINED TEST)
     add_subdirectory(test)
     enable_testing()
-    add_test(NAME SpriteReader_Work COMMAND SpriteReader_Work)
-    add_test(NAME TextureRepo_Work COMMAND TextureRepo_Work)
-    add_test(NAME Sprite_Work COMMAND Sprite_Work)
-    add_test(NAME SpriteSheetCache_Work COMMAND SpriteSheetCache_Work)
-    add_test(NAME Animation_Work COMMAND Animation_Work)
-    add_test(NAME Texture_Work COMMAND Texture_Work)
+    MADD_TEST(SpriteReader_Work)
+    MADD_TEST(TextureRepo_Work)
+    MADD_TEST(Sprite_Work)
+    MADD_TEST(SpriteSheetCache_Work)
+    MADD_TEST(Animation_Work)
+    MADD_TEST(Texture_Work)
+    MADD_TEST(Music_Work)
+    MADD_TEST(MusicRepo_Work)
+    MADD_TEST(Text_Work)
 endif()
 
 if (DEFINED TOOL)

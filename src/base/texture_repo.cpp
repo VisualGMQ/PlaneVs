@@ -77,7 +77,9 @@ void TextureRepo::loadSheet(fs::path sheet_filename) {
         Log("%s has exists in Repo", image_filename.c_str());
         return;
     }
-    Texture* texture = Texture::Create(image_filename);
+    SDL_Surface* surface = IMG_Load(image_filename.c_str());
+    Texture* texture = Texture::Create(surface);
+    SDL_FreeSurface(surface);
     _sheets[image_filename] = texture;
     for (const ImageInSheet& image : image_sheet.GetImages()) {
         if (_textures.find(image.GetName()) != _textures.end()) {

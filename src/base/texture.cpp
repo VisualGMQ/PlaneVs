@@ -2,21 +2,24 @@
 
 vector<Texture*> Texture::_instances;
 
-Texture* Texture::Create(const string filename) {
-    Texture* t = new Texture(filename);
+Texture* Texture::Create(SDL_Surface* surface) {
+    Texture* t = new Texture(surface);
     _instances.push_back(t);
     return t;
 }
 
-Texture::Texture(string filename) {
-    createTexture();
-    Load(filename);
+Texture* Texture::CreateIndependent(SDL_Surface* surface) {
+    return new Texture(surface);
 }
 
-void Texture::Load(const string filename) {
-    SDL_Surface* surface = IMG_Load(filename.c_str());
+Texture::Texture(SDL_Surface* surface) {
+    createTexture();
+    Load(surface);
+}
+
+void Texture::Load(SDL_Surface* surface) {
     if (!surface) {
-        Log("can't load image %s", filename.c_str());
+        // Log("Texture::Load surface is nullptr");
         invalid();
     } else {
         _size.w = surface->w;
@@ -24,7 +27,6 @@ void Texture::Load(const string filename) {
         valid();
         bufferTextureData(surface);
     }
-    SDL_FreeSurface(surface);
 }
 
 isize Texture::GetSize() const {

@@ -110,6 +110,7 @@ App::~App() {
     Log("App cleanup");
     _exec_body->Destroy();
     Texture::DestroyAll();
+    Font::DestroyAll();
     GLGfxBufManager::Destroy();
     GLProgramManager::Destroy();
     Bgm::Destroy();

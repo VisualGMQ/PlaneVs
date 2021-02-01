@@ -3,13 +3,19 @@
 #include "engin/app.hpp"
 
 #include <iostream>
+
+#include <SDL_image.h>
 using namespace std;
 
 class Texture_Work: public ExecBody {
  public:
     void Init() override {
-        _texture1 = Texture::Create("./test_resources/sword.png");
-        _texture2 = Texture::Create("./test_resources/cube_man.png");
+        SDL_Surface* surface = IMG_Load("./test_resources/sword.png");
+        _texture1 = Texture::Create(surface);
+        SDL_FreeSurface(surface);
+        surface = IMG_Load("./test_resources/cube_man.png");
+        _texture2 = Texture::Create(surface);
+        SDL_FreeSurface(surface);
     }
 
     void EventHandle(SDL_Event&) override {}

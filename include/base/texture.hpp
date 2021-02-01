@@ -25,7 +25,11 @@ using glm::mat4;
 
 class Texture final: public Validable, public ITexture, public Destroyable {
  public:
-     static Texture* Create(const string filename);
+     static Texture* Create(SDL_Surface* surface);
+     /*
+      * @brief create independent texture, the texture must delete by your self(use `delete texture;`)
+      */
+     static Texture* CreateIndependent(SDL_Surface* surface);
      static void DestroyAll() {
          for (Texture* t : _instances)
              delete t; 
@@ -36,7 +40,7 @@ class Texture final: public Validable, public ITexture, public Destroyable {
      Texture(const Texture&) = delete;
      Texture& operator=(const Texture&) = delete;
      isize GetSize() const override;
-     void Load(string filename);
+     void Load(SDL_Surface* surface);
      void Draw(irect* src_rect, irect* dst_rect, icolor* tex_color, icolor* key_color) const override;
      void Draw(irect* src_rect, irect*, float degree, FlipEnum flip, icolor* tex_color, icolor* key_color) const override;
      void Destroy() override;
@@ -45,7 +49,7 @@ class Texture final: public Validable, public ITexture, public Destroyable {
  private:
      static vector<Texture*> _instances;
 
-     explicit Texture(const string filename);
+     explicit Texture(SDL_Surface* surface);
      void createTexture();
      void bufferTextureData(SDL_Surface* surface);
      mat4 calcPositionInfo(float x, float y) const;

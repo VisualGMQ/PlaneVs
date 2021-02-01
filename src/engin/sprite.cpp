@@ -5,7 +5,9 @@ forward_list<Sprite> Sprite::_instances;
 Sprite* Sprite::Create(string filename, irect* area) {
     Sprite* sprite;
     sprite = Sprite::create();
-    sprite->init(Texture::Create(filename), area);
+    SDL_Surface* surface = IMG_Load(filename.c_str());
+    sprite->init(Texture::Create(surface), area);
+    SDL_FreeSurface(surface);
     return sprite;
 }
 

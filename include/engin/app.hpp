@@ -19,6 +19,7 @@
 #include "engin/sprite.hpp"
 #include "engin/bgm.hpp"
 #include "engin/music.hpp"
+#include "engin/text.hpp"
 using std::to_string;
 
 class App final{

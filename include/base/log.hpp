@@ -2,8 +2,11 @@
 #define LOG_HPP
 #include <string>
 #include <cassert>
+#include <cstdio>
+
 #include <SDL.h>
 using std::string;
+using std::printf;
 
 inline void Log(const char* format, ...) {
     va_list l;
@@ -14,7 +17,8 @@ inline void Log(const char* format, ...) {
 
 inline void Assertm(string msg, bool condition) {
     if (!condition) {
-        Log("[Assert]: %s", msg.c_str());
+        printf("[Assert]: %s", msg.c_str());
+        fflush(stdout);
         assert(false);
     }
 }
