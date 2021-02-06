@@ -14,7 +14,6 @@ enum MouseButtonStatue {
 class Mouse final: public Device {
  public:
     static Mouse* GetInstance();
-    static void Destroy();
 
     void ReceiveEvent(SDL_Event& event) override;
     ivec2 GetPosition() const { return _position; }
@@ -28,7 +27,7 @@ class Mouse final: public Device {
     ivec2 _motion = ivec2(0);
 
     Mouse() = default;
-    static Mouse* _instance;
+    static Mouse _instance;
 };
 
 

@@ -26,7 +26,6 @@ void Charger::Update() {
             }
             wrap.bullet->Draw();
             wrap.bullet->Update();
-            Logt("Charger::Update", "bullet updated, position = <%d, %d>", wrap.bullet->GetPosition().x, wrap.bullet->GetPosition().y);
         }
     }
         
@@ -37,7 +36,6 @@ void Charger::Update() {
             _time_count = 0;
             for (auto& wrap : _bullets) {
                 if (!wrap.alive) {
-                    Logt("Charger::Update", "charger position: <%d, %d>", _property.position.x, _property.position.y);
                     wrap.bullet->MoveTo(_property.position.x, _property.position.y);
                     wrap.alive = true;
                     wrap.bullet->Show();

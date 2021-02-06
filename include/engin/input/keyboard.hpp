@@ -13,13 +13,12 @@ enum KeyStatus {
 class Keyboard final: public Device {
  public:
     static Keyboard* GetInstance();
-    static void Destroy();
 
     void ReceiveEvent(SDL_Event& event) override;
     KeyStatus Query(SDL_Keycode sym) const;
 
  private:
-    static Keyboard* _instance;
+    static Keyboard _instance;
 
     map<SDL_Keycode, KeyStatus> _status;
 

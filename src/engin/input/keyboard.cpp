@@ -1,15 +1,9 @@
 #include "engin/input/keyboard.hpp"
 
-Keyboard* Keyboard::_instance = nullptr;
+Keyboard Keyboard::_instance;
 
 Keyboard* Keyboard::GetInstance() {
-    if (!_instance)
-        _instance = new Keyboard;
-    return _instance;
-}
-
-void Keyboard::Destroy() {
-    delete _instance;
+    return &_instance;
 }
 
 void Keyboard::ReceiveEvent(SDL_Event& event) {

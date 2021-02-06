@@ -22,6 +22,17 @@ void WelcomeStage::Init() {
     _enemy->MoveTo(100, 100);
     _enemy->Show();
 
+    _cache = SpriteSheetCache::Create("resources/player_plane.json");
+    sprite = _cache->CreateSprite("player_plane");
+    sprite->SetKeyColor(32, 32, 32);
+    _plane = new Plane(sprite, plane_prop);
+    _plane->Show();
+    _plane->MoveTo(400, 400);
+    prop.direction.y = -1;
+    sprite = _cache->CreateSprite("player_bullet");
+    sprite->SetKeyColor(32, 32, 32);
+    _plane->AddCharger(new Charger(sprite, prop, 10));
+
     ControllerButtonMap key_map;
     key_map.left = SDLK_a;
     key_map.right = SDLK_d;
@@ -30,24 +41,20 @@ void WelcomeStage::Init() {
     key_map.shoot = SDLK_j;
     key_map.bomb = SDLK_k;
     key_map.blast = SDLK_o;
-    KeyboardController* controller = KeyboardController::Create(_enemy, key_map);
+    KeyboardController* controller = KeyboardController::Create(_plane, key_map);
     Director::GetInstance()->SetController(controller);
 }
 
-void WelcomeStage::EventHandle(SDL_Event& event) {
-}
-
 void WelcomeStage::Step() {
-    if (Keyboard::GetInstance()->Query(SDLK_j) == KEY_PRESS)
-        _enemy->StartShoot();
-    else
-        _enemy->StopShoot();
     _enemy->Update();
+    _plane->Update();
     _enemy->Draw();
+    _plane->Draw();
 }
 
 void WelcomeStage::Destroy() {
     Director::GetInstance()->SetController(nullptr);
     delete _enemy;
+    delete _plane;
     Logi("WelcomStage::Destroy", "WelcomeStage Destoryed");
 }

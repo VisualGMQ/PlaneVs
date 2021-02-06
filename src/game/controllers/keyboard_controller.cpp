@@ -57,3 +57,15 @@ void KeyboardController::OnShoot() {
         _plane->StopShoot();
     }
 }
+
+void KeyboardController::OnBomb() {
+
+}
+
+void KeyboardController::OnBlast() {
+
+}
+
+void KeyboardController::OnEsc() {
+
+}

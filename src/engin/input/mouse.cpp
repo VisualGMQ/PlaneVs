@@ -1,15 +1,9 @@
 #include "engin/input/mouse.hpp"
 
-Mouse* Mouse::_instance = nullptr;
+Mouse Mouse::_instance;
 
 Mouse* Mouse::GetInstance() {
-    if (!_instance)
-        _instance = new Mouse;
-    return _instance;
-}
-
-void Mouse::Destroy() {
-    delete _instance;
+    return &_instance;
 }
 
 void Mouse::ReceiveEvent(SDL_Event& event) {

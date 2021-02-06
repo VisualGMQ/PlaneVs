@@ -106,10 +106,10 @@ App::~App() {
     Logi("App::~App", "App cleanup");
     Director::GetInstance()->Destroy();
     Logi("App::~App", "Director destroyed");
-    Texture::DestroyAll();
-    Logi("App::~App", "Texture destroyed");
     Font::DestroyAll();
     Logi("App::~App", "Font destroyed");
+    Texture::DestroyAll();
+    Logi("App::~App", "Texture destroyed");
     GLGfxBufManager::Destroy();
     Logi("App::~App", "GLGfxBufManager destroyed");
     GLProgramManager::Destroy();
@@ -118,9 +118,6 @@ App::~App() {
     Logi("App::~App", "Bgm destroyed");
     Music::DestroyAll();
     Logi("App::~App", "Music destroyed");
-    Keyboard::Destroy();
-    Mouse::Destroy();
-    Logi("App::~App", "devices destroyed");
     SDL_DestroyWindow(_window);
     Logi("App::~App", "Window destroyed");
     IMG_Quit();

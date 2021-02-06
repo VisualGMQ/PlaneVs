@@ -26,7 +26,8 @@ class Director final {
     GameStatus GetGameStatus() const { return _status; }
     void SetController(Controller* controller) {
         _controller = controller;
-        controller->TrunOn();
+        if (_controller)
+            controller->TrunOn();
     }
     void SetGameStatus(GameStatus status) { _status = status; }
     void Exit();

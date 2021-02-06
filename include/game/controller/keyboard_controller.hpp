@@ -20,9 +20,9 @@ class KeyboardController: public Controller {
     void OnUp() override;
     void OnDown() override;
     void OnShoot() override;
-    void OnBomb() override {}
-    void OnBlast() override {}
-    void OnEsc() override {}
+    void OnBomb() override;
+    void OnBlast() override;
+    void OnEsc() override;
 
     virtual ~KeyboardController() = default;
 
