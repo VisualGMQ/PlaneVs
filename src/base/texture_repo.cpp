@@ -6,7 +6,7 @@ void TextureInSheet::Draw(irect* src_rect, irect* dst_rect, icolor* tex_color, i
 
 void TextureInSheet::Draw(irect* src_rect, irect* dst_rect, float degree, FlipEnum flip, icolor* tex_color, icolor* key_color) const {
     if (!_sheet) {
-        Log("TextureInSheet::Draw sheet is nullptr");
+        Logw("TextureInSheet::Draw", "TextureInSheet::Draw sheet is nullptr");
         return;
     }
     irect src_rect_;
@@ -68,13 +68,13 @@ void TextureRepo::AddSheet(fs::path json_filename) {
 
 void TextureRepo::loadSheet(fs::path sheet_filename) {
     if (!fs::exists(sheet_filename)) {
-        Log("%s not exists", sheet_filename.string().c_str());
+        Logw("TextureRepo::loadSheet" ,"%s not exists", sheet_filename.string().c_str());
         return;
     }
     auto image_sheet = ImageSheet::ReadFromJson(sheet_filename);
     string image_filename = image_sheet.GetImageFilename();
     if (_sheets.find(image_filename) != _sheets.end()) {
-        Log("%s has exists in Repo", image_filename.c_str());
+        Logw("TextureRepoi::loadSheet", "%s has exists in Repo", image_filename.c_str());
         return;
     }
     SDL_Surface* surface = IMG_Load(image_filename.c_str());
@@ -83,7 +83,7 @@ void TextureRepo::loadSheet(fs::path sheet_filename) {
     _sheets[image_filename] = texture;
     for (const ImageInSheet& image : image_sheet.GetImages()) {
         if (_textures.find(image.GetName()) != _textures.end()) {
-            Log("%s has in Repo", image.GetName().c_str());
+            Logw("TextureRepo::loadSheet", "%s has in Repo", image.GetName().c_str());
             continue;
         }
         _textures[image.GetName()] = TextureInSheet({image.GetPosition().x, image.GetPosition().y, image.GetSize().w, image.GetSize().h}, texture);

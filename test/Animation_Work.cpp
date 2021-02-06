@@ -1,9 +1,9 @@
-#include "engin/exec_body.hpp"
+#include "engin/stage.hpp"
 #include "engin/app.hpp"
 #include "engin/sprite_sheet_cache.hpp"
 #include "engin/animation.hpp"
 
-class SpriteSheetCache_Work: public ExecBody {
+class SpriteSheetCache_Work: public Stage {
  public:
     void Init() override {
         _cache = SpriteSheetCache::Create("./test_resources/mario/mario.json");
@@ -11,7 +11,7 @@ class SpriteSheetCache_Work: public ExecBody {
         for (int i = 0; i < 6; i++)
             _animation->AddFrame(_cache->CreateSprite("Mario_walk" + to_string(i+1)), 3);
 
-        _animation->Move(300, 300);
+        _animation->MoveTo(300, 300);
         _animation->Scale(4, 4);
         _animation->SetKeyColor(184, 203, 212);
         _animation->SetLoop(Animation::LOOP_INFINITE);
@@ -41,11 +41,10 @@ class SpriteSheetCache_Work: public ExecBody {
 
 
 int main(int argc, char** argv) {
-    App app;
-    app.SetTitle("Sprite Sheet Cache Workable");
-
     SpriteSheetCache_Work workable;
-    app.SetExecBody(&workable);
+
+    App app(&workable);
+    app.SetTitle("Sprite Sheet Cache Workable");
 
     app.Run();
     return 0;

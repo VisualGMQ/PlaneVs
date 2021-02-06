@@ -1,0 +1,54 @@
+{
+	"./fire1": {
+		"frame": {
+			"x": 8,
+			"y": 34,
+			"width": 8,
+			"height": 6
+		},
+		"sourceSize": {
+			"width": 8,
+			"height": 6
+		},
+		"rotated": false
+	},
+	"./fire2": {
+		"frame": {
+			"x": 0,
+			"y": 34,
+			"width": 8,
+			"height": 6
+		},
+		"sourceSize": {
+			"width": 8,
+			"height": 6
+		},
+		"rotated": false
+	},
+	"./player_bullet": {
+		"frame": {
+			"x": 36,
+			"y": 0,
+			"width": 4,
+			"height": 20
+		},
+		"sourceSize": {
+			"width": 4,
+			"height": 20
+		},
+		"rotated": false
+	},
+	"./player_plane": {
+		"frame": {
+			"x": 0,
+			"y": 0,
+			"width": 36,
+			"height": 34
+		},
+		"sourceSize": {
+			"width": 36,
+			"height": 34
+		},
+		"rotated": false
+	}
+}

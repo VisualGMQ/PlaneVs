@@ -1,0 +1,28 @@
+{
+	"./blast1": {
+		"frame": {
+			"x": 0,
+			"y": 0,
+			"width": 36,
+			"height": 36
+		},
+		"sourceSize": {
+			"width": 36,
+			"height": 36
+		},
+		"rotated": false
+	},
+	"./blast2": {
+		"frame": {
+			"x": 36,
+			"y": 0,
+			"width": 36,
+			"height": 36
+		},
+		"sourceSize": {
+			"width": 36,
+			"height": 36
+		},
+		"rotated": false
+	}
+}

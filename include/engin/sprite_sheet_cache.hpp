@@ -11,7 +11,6 @@ using std::forward_list;
 class SpriteSheetCache final {
  public:
     static SpriteSheetCache* Create(string sheet_filename);
-    static void Destroy();
 
     Sprite* CreateSprite(string name, irect* area = nullptr);
 

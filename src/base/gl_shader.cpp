@@ -10,7 +10,7 @@ GLShader::GLShader(GLenum type, string filename) {
 
 string GLShader::loadShaderContent(string filename) {
     ifstream file(filename);
-    Assertm("shader " + filename + " open failed", !file.fail());
+    Assertm(!file.fail(), "GLShader::loadShaderContent", "shader %s open failed", filename.c_str());
     string content((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
     file.close();
     return content;
@@ -18,7 +18,7 @@ string GLShader::loadShaderContent(string filename) {
 
 void GLShader::createShader(GLenum shader_type) {
     _shader = glCreateShader(shader_type);
-    Assertm("Shader create failed", _shader != 0);
+    Assertm(_shader != 0, "GLShader::createShader", "Shader create failed");
 }
 
 void GLShader::fillShaderContent(string content) {
@@ -43,7 +43,7 @@ void GLShader::compileShader() {
     if (!success) {
         char buf[1024] = {0};
         glGetShaderInfoLog(_shader, sizeof(buf), nullptr, buf);
-        Log("shader compile failed:\n%s", buf);
+        Logw("GLShader::compileShader", "shader compile failed:\n%s", buf);
         invalid();
     } else {
         valid();

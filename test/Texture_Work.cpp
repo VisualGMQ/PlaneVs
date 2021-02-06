@@ -1,5 +1,5 @@
 #include "base/texture.hpp"
-#include "engin/exec_body.hpp"
+#include "engin/stage.hpp"
 #include "engin/app.hpp"
 
 #include <iostream>
@@ -7,7 +7,7 @@
 #include <SDL_image.h>
 using namespace std;
 
-class Texture_Work: public ExecBody {
+class Texture_Work: public Stage {
  public:
     void Init() override {
         SDL_Surface* surface = IMG_Load("./test_resources/sword.png");
@@ -43,11 +43,10 @@ class Texture_Work: public ExecBody {
 };
 
 int main(int argc, char** argv) {
-    App app;
-    app.SetTitle("Texture Workale");
-
     Texture_Work workable;
-    app.SetExecBody(&workable);
+
+    App app(&workable);
+    app.SetTitle("Texture Workale");
 
     app.Run();
     return 0;

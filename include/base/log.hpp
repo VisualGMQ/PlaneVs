@@ -4,23 +4,27 @@
 #include <cassert>
 #include <cstdio>
 
-#include <SDL.h>
 using std::string;
-using std::printf;
+using std::vprintf;
 
-inline void Log(const char* format, ...) {
-    va_list l;
-    va_start(l, format);
-    SDL_Log(format, l);
-    va_end(l);
-}
+enum LogLevel {
+    LOG_OFF = 0,
+    LOG_ERROR,
+    LOG_WARN,
+    LOG_INFO,
+    LOG_DEBUG,
+    LOG_TRACE,
+    LOG_ALL
+};
 
-inline void Assertm(string msg, bool condition) {
-    if (!condition) {
-        printf("[Assert]: %s", msg.c_str());
-        fflush(stdout);
-        assert(false);
-    }
-}
+void SetLogLevel(LogLevel level);
+
+void Logi(const char* func_name, const char* format, ...);
+void Logw(const char* func_name, const char* format, ...);
+void Logd(const char* func_name, const char* format, ...);
+void Loge(const char* func_name, const char* format, ...);
+void Logt(const char* func_name, const char* format, ...);
+
+void Assertm(bool condition, const char* func_name, const char* format, ...);
 #endif
 

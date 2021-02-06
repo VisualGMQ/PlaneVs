@@ -38,7 +38,7 @@ ImageSheet ImageSheet::ReadFromJson(fs::path filename) {
 
 ImageSheet::ImageSheet(fs::path json_filename) {
     if (!fs::exists(json_filename)) {
-        Log("%s not exists", json_filename.string().c_str());
+        Logw("ImageSheeet::ImageSheetl", "%s not exists", json_filename.string().c_str());
         invalid();
     } else {
         _img_filename = json_filename.string();
@@ -89,7 +89,7 @@ Json::Value ImageSheet::readJsonFile(string filename) {
     ifstream file(filename);
     Json::Value root;
     if (file.fail()) {
-        Log("%s not exists", filename.c_str());
+        Logw("ImageSheet::readJsonFile", "%s not exists", filename.c_str());
         return root;
     }
     string content((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
@@ -98,8 +98,8 @@ Json::Value ImageSheet::readJsonFile(string filename) {
     std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
     Json::String error;
     if (!reader->parse(content.c_str(), content.c_str()+content.length(), &root, &error)) {
-        Log("parse json file failed");
-        Log(error.c_str());
+        Logw("ImageSheet::readJsonFile", "parse json file failed");
+        Logw("ImageSheet::readJsonFile", "%s", error.c_str());
     }
     return root;
 }

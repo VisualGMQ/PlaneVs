@@ -41,7 +41,7 @@ class IdInstanceManager {
              if (buf->GetId() == id)
                  return buf;
          }
-         Log("you required a non-exist id %u", id);
+         Logw("Manager::GetById", "you required a non-exist id %u", id);
          return nullptr;
      }
 
@@ -49,7 +49,7 @@ class IdInstanceManager {
          for (MANAGED_TYPE* buf : _instances)
              delete buf;
          const auto& t = typeid(MANAGED_TYPE);
-         Log("Manager<%s> Destoryed", t.name());
+         Logi("Manager::Destroy", "Manager<%s> Destoryed", t.name());
      }
 
  private:

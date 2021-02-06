@@ -1,12 +1,13 @@
 #include "engin/app.hpp"
 
-App::App() {
+App::App(Stage* stage) {
     initSystem();
-    Log("System inited");
+    Logi("App::App", "System inited");
     CreatePresetPrograms();
-    Log("programs inited");
+    Logi("App::App", "programs inited");
     initGLBuffers();
-    Log("gl buffers inited");
+    Logi("App::App", "gl buffers inited");
+    Director::GetInstance()->SetStage(stage);
 }
 
 void App::SetTitle(string title) {
@@ -14,7 +15,7 @@ void App::SetTitle(string title) {
 }
 
 void App::initSystem() {
-    Assertm("SDL init failed", SDL_Init(SDL_INIT_EVERYTHING) == 0);
+    Assertm(SDL_Init(SDL_INIT_EVERYTHING) == 0, "App::initSystem", "App::initSystem", "SDL init failed");
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
@@ -26,26 +27,26 @@ void App::initSystem() {
     SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);
-    Log("SDL inited");
+    Logi("App::initSystem", "SDL inited");
 
     IMG_Init(IMG_INIT_JPG|IMG_INIT_PNG);
     TTF_Init();
     Mix_Init(MIX_INIT_OGG|MIX_INIT_MP3|MIX_INIT_FLAC|MIX_INIT_MID|MIX_INIT_MOD);
     Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 4096);
-    Log("SDL expansions inited");
+    Logi("App::initSystem", "SDL expansions inited");
 
     _window = SDL_CreateWindow(
         "",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         _window_size.w, _window_size.h,
         SDL_WINDOW_SHOWN|SDL_WINDOW_RESIZABLE|SDL_WINDOW_OPENGL);
-    Assertm("window create failed", _window != nullptr);
+    Assertm(_window != nullptr, "App::initSystem", "window create failed");
 
     SDL_GL_CreateContext(_window);
 
     glewExperimental = true;
-    Assertm("glew init failed", glewInit() == GLEW_OK);
-    Log("glew inited");
+    Assertm(glewInit() == GLEW_OK, "App::initSystem", "glew init failed");
+    Logi("App::initSystem", "glew inited");
 
     glViewport(0, 0, _window_size.w, _window_size.h);
 
@@ -60,26 +61,13 @@ void App::initSystem() {
 void App::initGLBuffers() {
     CreatePresetGfxBufs();
     _gfx_buf = GLGfxBufManager::GetById(SYSTEM_GFXBUF_ID);
-    Log("system gfx buffer created");
-}
-
-void App::SetExecBody(ExecBody* body) {
-    _exec_body = body;
-    _exec_body->DepsInject(_window);
-    _exec_body->Init();
-    Log("executable body inited");
-}
-
-ExecBody* App::getExecBody() {
-    if (!_exec_body)
-        SDL_Log("exec body empty");
-    return _exec_body;
+    Logi("App::initGLBuffers", "system gfx buffer created");
 }
 
 void App::Run() {
-    ExecBody* exec_body = getExecBody();
-    Assertm("Don't have any executable body", exec_body != nullptr);
-    while (!exec_body->ShouldExit()) {
+    Director* director = Director::GetInstance();
+    while (!director->ShouldExit()) {
+        const int tick = SDL_GetTicks();
         glClearColor(_clear_color.r, _clear_color.g, _clear_color.b, _clear_color.a);
         glClear(GL_COLOR_BUFFER_BIT|GL_STENCIL_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
         glBindBuffer(GL_ARRAY_BUFFER, _gfx_buf->vbo);
@@ -87,9 +75,16 @@ void App::Run() {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _gfx_buf->ebo);
         eventHandle();
         GLProgramManager::GetById(TEXTURE_PROGRAM_ID)->UniformMat4("projection", _projection);
-        exec_body->Step();
+        director->Update();
         SDL_GL_SwapWindow(_window);
-        SDL_Delay(_delay_time);
+
+        const int delay_time = round(1000.0/FPS);
+        const int delta_tick= SDL_GetTicks() - tick;
+        if (delta_tick <= delay_time) {
+            SDL_Delay(delay_time-delta_tick);
+        } else {
+            SDL_Delay(10);
+        }
     }
 }
 
@@ -101,23 +96,37 @@ void App::eventHandle() {
             }
         }
         if (_event.type == SDL_QUIT)
-            _exec_body->Exit();
-        _exec_body->EventHandle(_event);
+            Director::GetInstance()->Exit();
+        Keyboard::GetInstance()->ReceiveEvent(_event);
+        Mouse::GetInstance()->ReceiveEvent(_event);
     }
 }
 
 App::~App() {
-    Log("App cleanup");
-    _exec_body->Destroy();
+    Logi("App::~App", "App cleanup");
+    Director::GetInstance()->Destroy();
+    Logi("App::~App", "Director destroyed");
     Texture::DestroyAll();
+    Logi("App::~App", "Texture destroyed");
     Font::DestroyAll();
+    Logi("App::~App", "Font destroyed");
     GLGfxBufManager::Destroy();
+    Logi("App::~App", "GLGfxBufManager destroyed");
     GLProgramManager::Destroy();
+    Logi("App::~App", "GLProgramManager destroyed");
     Bgm::Destroy();
+    Logi("App::~App", "Bgm destroyed");
+    Music::DestroyAll();
+    Logi("App::~App", "Music destroyed");
+    Keyboard::Destroy();
+    Mouse::Destroy();
+    Logi("App::~App", "devices destroyed");
     SDL_DestroyWindow(_window);
+    Logi("App::~App", "Window destroyed");
     IMG_Quit();
     TTF_Quit();
     Mix_CloseAudio();
     Mix_Quit();
     SDL_Quit();
+    Logi("App::~App", "All system quit, App finished");
 }

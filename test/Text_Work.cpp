@@ -1,8 +1,8 @@
-#include "engin/exec_body.hpp"
+#include "engin/stage.hpp"
 #include "engin/app.hpp"
 #include "engin/text.hpp"
 
-class Text_Workable: public ExecBody {
+class Text_Workable: public Stage {
  public:
     void Init() override {
         _font = Font::Create("./test_resources/SimHei.ttf", 20);
@@ -30,11 +30,10 @@ class Text_Workable: public ExecBody {
 
 
 int main(int argc, char** argv) {
-    App app;
-    app.SetTitle("Text Workable");
-
     Text_Workable workable;
-    app.SetExecBody(&workable);
+
+    App app(&workable);
+    app.SetTitle("Text Workable");
 
     app.Run();
     return 0;

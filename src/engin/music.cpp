@@ -13,6 +13,13 @@ Music* Music::Create(string filename) {
     return music;
 }
 
+void Music::DestroyAll() {
+    for (Music* music : _instances) {
+        delete music;
+    }
+    _instances.clear();
+}
+
 void Music::load(string wav_filename) {
     if (_chunk)
         Mix_FreeChunk(_chunk);

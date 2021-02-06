@@ -1,11 +1,11 @@
 #include "base/texture_repo.hpp"
-#include "engin/exec_body.hpp"
+#include "engin/stage.hpp"
 #include "engin/app.hpp"
 
 #include <iostream>
 using namespace std;
 
-class TextureRepo_Work: public ExecBody {
+class TextureRepo_Work: public Stage {
  public:
     void Init() override {
         _repo1 = TextureRepo::CreateFromSheet("./test_resources/test_pngs/icons.json");
@@ -44,18 +44,17 @@ class TextureRepo_Work: public ExecBody {
             irect dst_rect = {x, y, texture->GetSize().w, texture->GetSize().h};
             texture->Draw(nullptr, &dst_rect, nullptr, nullptr);
         } else {
-            Log("%s can't find", name.c_str());
+            Loge("TextureRepo_Work::drawSheet", "%s can't find", name.c_str());
         }
     }
 
 };
 
 int main(int argc, char** argv) {
-    App app;
-    app.SetTitle("TextureRepo Workale");
-
     TextureRepo_Work workable;
-    app.SetExecBody(&workable);
+
+    App app(&workable);
+    app.SetTitle("TextureRepo Workale");
 
     app.Run();
     return 0;

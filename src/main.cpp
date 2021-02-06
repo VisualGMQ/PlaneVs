@@ -1,16 +1,13 @@
 #include "engin/app.hpp"
-#include "game/game_body.hpp"
+#include "game/welcome_stage.hpp"
 
 int main(int argc, char** argv) {
-    App app;
-    Log("app created");
+    WelcomeStage stage;
+
+    App app(&stage);
+    Logi("main", "app created");
     app.SetTitle("PlaneVS");
 
-    // executable body must create after app
-    GameBody body;
-    Log("exec body created");
-
-    app.SetExecBody(&body);
     app.Run();
     return 0;
 }

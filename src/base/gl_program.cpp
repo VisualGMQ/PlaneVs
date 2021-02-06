@@ -11,7 +11,7 @@ GLProgram::GLProgram(IdType id, GLShader& vertex_shader, GLShader& frag_shader):
 
 void GLProgram::createProgram() {
     _program = glCreateProgram();
-    Assertm("program create failed", _program != 0);
+    Assertm(_program != 0, "GLProgram::createProgram", "program create failed");
 }
 
 void GLProgram::ApplyShaders(GLShader& vertex_shader, GLShader& frag_shader) {
@@ -32,7 +32,7 @@ void GLProgram::linkShaders() {
     if (!success) {
         char buf[1024] = {0};
         glGetProgramInfoLog(_program, sizeof(buf), nullptr, buf);
-        Log("program link failed:\n%s", buf);
+        Logw("GLProgram::linkShaders", "program link failed:\n%s", buf);
         invalid();
     } else {
         valid();
@@ -75,7 +75,7 @@ void GLProgram::UniformVec4(const string name, vec4 value) {
 GLint GLProgram::getLocation(const string& name) {
     GLuint loc = glGetUniformLocation(_program, name.c_str());
     if (loc == -1)
-        Log("%s location can't find", name.c_str());
+        Logw("GLProgram::getLocation", "%s location can't find", name.c_str());
     return loc;
 }
 

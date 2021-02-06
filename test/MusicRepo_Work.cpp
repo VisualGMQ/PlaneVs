@@ -1,11 +1,11 @@
-#include "engin/exec_body.hpp"
+#include "engin/stage.hpp"
 #include "engin/app.hpp"
 #include "engin/music_repo.hpp"
 
 #include <iostream>
 using namespace std;
 
-class Music_Work: public ExecBody {
+class Music_Work: public Stage {
  public:
     void Init() override {
         _repo = MusicRepo::Create();
@@ -33,11 +33,10 @@ class Music_Work: public ExecBody {
 };
 
 int main(int argc, char** argv) {
-    App app;
-    app.SetTitle("Music Workable");
-
     Music_Work workable;
-    app.SetExecBody(&workable);
+
+    App app(&workable);
+    app.SetTitle("Music Workable");
 
     app.Run();
     return 0;

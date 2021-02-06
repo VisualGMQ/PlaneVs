@@ -23,6 +23,7 @@ class IMusic: public Destroyable {
 class Music: public IMusic {
  public:
     static Music* Create(string filename);    
+    static void DestroyAll();
 
     static void StopAllMusic();
 

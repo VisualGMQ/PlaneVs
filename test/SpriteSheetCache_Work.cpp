@@ -1,11 +1,11 @@
-#include "engin/exec_body.hpp"
+#include "engin/stage.hpp"
 #include "engin/app.hpp"
 #include "engin/sprite_sheet_cache.hpp"
 
 #include <array>
 using std::array;
 
-class SpriteSheetCache_Work: public ExecBody {
+class SpriteSheetCache_Work: public Stage {
  public:
     void Init() override {
         _cache = SpriteSheetCache::Create("./test_resources/test_pngs/icons.json");
@@ -47,11 +47,10 @@ class SpriteSheetCache_Work: public ExecBody {
 
 
 int main(int argc, char** argv) {
-    App app;
-    app.SetTitle("Sprite Sheet Cache Workable");
-
     SpriteSheetCache_Work workable;
-    app.SetExecBody(&workable);
+
+    App app(&workable);
+    app.SetTitle("Sprite Sheet Cache Workable");
 
     app.Run();
     return 0;

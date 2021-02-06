@@ -7,7 +7,7 @@ void Bgm::Load(string filename) {
         Mix_FreeMusic(_music);
     _music = Mix_LoadMUS(filename.c_str());
     if (!_music)
-        Log("%s load failed", filename.c_str());
+        Logw("Bgm::Load", "%s load failed", filename.c_str());
 }
 
 void Bgm::Play(int loops) {

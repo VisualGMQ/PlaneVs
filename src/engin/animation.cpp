@@ -9,29 +9,46 @@ Animation* Animation::Create() {
 }
 
 void Animation::AddFrame(Sprite* sprite, int time) {
-    Assertm("Animation::AddFrame sprite == nullptr", sprite != nullptr);
-    Assertm("Animation::AddFrame time must >= 0", time >= 0);
+    if (!sprite)
+        Logw("Animation::AddFrame", "Animation::AddFrame sprite == nullptr");
+    if (time < 0)
+        Logw("Animation::AddFrame", "Animation::AddFrame time must >= 0");
     Frame frame;
-    frame.sprite = sprite;
+    frame.sprite = sprite->Copy();
     frame.time = time;
     _frames.push_back(frame);
 }
 
-void Animation::Rotate(float degree) {
-    for (Frame& frame : _frames) {
-        if (frame.sprite)
-            frame.sprite->RotateTo(degree);
-    }
-    _degree = degree;
-}
-
-void Animation::Move(int x, int y) {
+void Animation::MoveTo(int x, int y) {
     for (int i = 0; i < _frames.size(); i++) {
         if (_frames.at(i).sprite)
             _frames.at(i).sprite->MoveTo(x, y);
     }
-    _position.x = x;
-    _position.y = y;
+    ISprite::MoveTo(x, y);
+}
+
+void Animation::MoveTo(ivec2 pos) {
+    MoveTo(pos.x, pos.y);
+}
+
+void Animation::MoveBy(int offset_x, int offset_y) {
+    MoveTo(GetPosition().x+offset_x, GetPosition().y+offset_y);
+}
+
+void Animation::MoveBy(ivec2 offset) {
+    MoveBy(offset.x, offset.y);
+}
+
+void Animation::RotateTo(float degree) {
+    for (Frame& frame : _frames) {
+        if (frame.sprite)
+            frame.sprite->RotateTo(degree);
+    }
+    Rotatable::RotateTo(degree);
+}
+
+void Animation::RotateBy(float delta) {
+    RotateTo(GetRotation()+delta);
 }
 
 void Animation::SetFlip(FlipEnum flip) {
@@ -43,8 +60,8 @@ void Animation::SetFlip(FlipEnum flip) {
 }
 
 void Animation::Scale(float scale_x, float scale_y) {
-    Assertm("Animation::Scale scale_x must > 0", scale_x > 0);
-    Assertm("Animation::Scale scale_y must > 0", scale_y > 0);
+    Assertm(scale_x > 0, "Animation::Scale", "Animation::Scale scale_x must > 0");
+    Assertm(scale_y > 0, "Animation::Scale", "Animation::Scale scale_y must > 0");
     for (Frame& frame : _frames) {
         if (frame.sprite) {
             isize size = frame.sprite->GetOriginSize();
@@ -93,13 +110,13 @@ void Animation::Hide() {
     Visiable::Hide();
 }
 
-void Animation::Draw() {
+void Animation::draw() {
     if (_cur_idx >= 0 && _cur_idx < _frames.size())
         if (_frames.at(_cur_idx).sprite)
             _frames.at(_cur_idx).sprite->Draw();
 }
 
-void Animation::Update() {
+void Animation::update() {
     updateAnimation();
     updateSprite();
 }
@@ -133,4 +150,17 @@ void Animation::updateSprite() {
     if (_cur_idx >= 0 && _cur_idx < _frames.size())
         if (_frames.at(_cur_idx).sprite)
             _frames.at(_cur_idx).sprite->Update();
+}
+
+Animation* Animation::Copy() {
+    Animation* ani = Animation::Create();
+    *ani = *this;
+    ani->_frames.clear();
+    for (int i = 0; i < this->_frames.size(); i++) {
+        ani->AddFrame(this->_frames[i].sprite, this->_frames[i].time);
+    }
+}
+
+ISprite* Animation::CopyISprite() {
+
 }

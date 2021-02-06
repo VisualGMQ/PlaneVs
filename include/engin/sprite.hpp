@@ -7,28 +7,25 @@
 #include <glm/glm.hpp>
 
 #include "base/tools.hpp"
-#include "base/flip.hpp"
 #include "base/texture.hpp"
 #include "base/geomentry.hpp"
-#include "engin/object.hpp"
-#include "engin/drawable.hpp"
-#include "engin/updatable.hpp"
-#include "engin/visiable.hpp"
+#include "engin/movable.hpp"
+#include "engin/rotatable.hpp"
+#include "engin/resizable.hpp"
+#include "engin/flipable.hpp"
+#include "engin/isprite.hpp"
 using std::string;
 using std::forward_list;
 using glm::vec2;
 
 class SpriteSheetCache;
 
-class Sprite: virtual public Object, public Drawable, public Updatable, public Visiable {
+class Sprite: virtual public Resizable, public Rotatable, public ISprite {
  public:
     friend SpriteSheetCache;
 
     static Sprite* Create(string filename, irect* area = nullptr);
 
-    void Flip(FlipEnum flip);
-    void SetFlip(FlipEnum flip) { _flip = flip; }
-    FlipEnum GetFlip() const { return _flip; }
     void SetClipArea(irect area) { _clip_area = area; }
     irect GetClipArea() const { return _clip_area; }
     void SetKeyColor(int r, int g, int b) {
@@ -52,16 +49,19 @@ class Sprite: virtual public Object, public Drawable, public Updatable, public V
         return isize();
     }
     icolor GetColor() const { return _color; }
-    void Draw() override;
-    void Update() override {}
+    Sprite* Copy();
+    ISprite* CopyISprite() override;
     virtual ~Sprite() = default;
+
+ protected:
+    void update() override {}
+    void draw() override;
 
  private:
     icolor _color = {255, 255, 255, 255};
     icolor _key_color = {-255, -255, -255, 0};
     ITexture* _texture = nullptr;
     irect _clip_area;
-    FlipEnum _flip = FLIP_NONE;
 
     static forward_list<Sprite> _instances;
 

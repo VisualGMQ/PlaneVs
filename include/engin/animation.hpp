@@ -5,15 +5,13 @@
 #include <glm/glm.hpp>
 
 #include "engin/sprite.hpp"
-#include "engin/drawable.hpp"
-#include "engin/updatable.hpp"
-#include "engin/visiable.hpp"
+#include "engin/isprite.hpp"
 
 using std::forward_list;
 using glm::ivec2;
 using glm::vec2;
 
-class Animation final: virtual public Visiable, public Drawable, public Updatable {
+class Animation final: public Rotatable, public ISprite {
  public:
     static Animation* Create();
 
@@ -21,16 +19,22 @@ class Animation final: virtual public Visiable, public Drawable, public Updatabl
         LOOP_INFINITE = -1,
         LOOP_NOLOOP = 0
     };
-    void Rotate(float degree);
-    float GetRotation() const { return _degree; }
-    void Move(int x, int y);
-    ivec2 GetPosition() const { return _position; }
-    void SetFlip(FlipEnum flip);
-    FlipEnum GetFlip() const { return _flip; }
+    void MoveTo(int x, int y) override;
+    void MoveTo(ivec2 pos) override;
+    void MoveBy(int offset_x, int offset_y) override;
+    void MoveBy(ivec2 offset) override;
+
+    void RotateTo(float degree) override;
+    void RotateBy(float delta) override;
+
+    void SetFlip(FlipEnum flip) override;
+
     void Scale(float scale_x, float scale_y);
     vec2 GetScale() const { return _scale; }
+
     void Show() override;
     void Hide() override;
+
     void EnableRestoreOriginFrame() { _restore_origin = true; }
     void DisableRestoreOriginFrame() { _restore_origin = false; }
     bool IsRestoreOriginFrame() const { return _restore_origin; }
@@ -49,10 +53,16 @@ class Animation final: virtual public Visiable, public Drawable, public Updatabl
         _cur_idx = 0;
         _timer = 0;
     }
+
+    Animation* Copy();
+    ISprite* CopyISprite() override;
+
     int Length() const { return _frames.size(); }
-    void Draw() override;
-    void Update() override;
     virtual ~Animation() = default;
+
+ protected:
+    void draw() override;
+    void update() override;
 
  private:
     struct Frame {
@@ -69,10 +79,8 @@ class Animation final: virtual public Visiable, public Drawable, public Updatabl
 
     static forward_list<Animation> _instances;
 
-    ivec2 _position;
     vec2 _scale = vec2(1, 1);
     FlipEnum _flip = FLIP_NONE;
-    float _degree = 0;
 
     Animation() = default;
     void updateAnimation();

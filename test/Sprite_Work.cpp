@@ -1,8 +1,8 @@
-#include "engin/exec_body.hpp"
+#include "engin/stage.hpp"
 #include "engin/app.hpp"
 #include "engin/sprite.hpp"
 
-class Sprite_Workable: public ExecBody {
+class Sprite_Workable: public Stage {
  public:
     void Init() override {
         _sprite1 = Sprite::Create("./test_resources/sword.png", nullptr);
@@ -18,6 +18,10 @@ class Sprite_Workable: public ExecBody {
         _sprite2->Show();
         _sprite2->MoveTo(400, 200);
         _sprite2->Flip(FLIP_HORIZENTAL);
+
+        _copy_sp = _sprite2->Copy();
+        _copy_sp->MoveTo(500, 500);
+        _copy_sp->Show();
     }
 
     void EventHandle(SDL_Event&) override {}
@@ -30,6 +34,8 @@ class Sprite_Workable: public ExecBody {
         _sprite1->Update();
         _sprite2->Draw();
         _sprite2->Update();
+        _copy_sp->Draw();
+        _copy_sp->Update();
     }
 
     void Destroy() override {
@@ -40,15 +46,15 @@ class Sprite_Workable: public ExecBody {
  private:
     Sprite* _sprite1;
     Sprite* _sprite2;
+    Sprite* _copy_sp;
 };
 
 
 int main(int argc, char** argv) {
-    App app;
-    app.SetTitle("Sprite Workable");
-
     Sprite_Workable workable;
-    app.SetExecBody(&workable);
+
+    App app(&workable);
+    app.SetTitle("Sprite Workable");
 
     app.Run();
     return 0;
