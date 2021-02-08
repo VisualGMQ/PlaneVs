@@ -3,8 +3,6 @@
 Director* Director::director = nullptr;
 
 void Director::Update() {
-    if (_controller)
-        _controller->Update();
     if (_stage) {
         _stage->Step();
     }

@@ -33,7 +33,7 @@ class Texture final: public Validable, public ITexture, public Destroyable {
      static void DestroyAll() {
          for (Texture* t : _instances)
              delete t; 
-         Logi("static Texture::DestroyAll", "Textures deleted");
+         _instances.clear();
      }
 
      Texture() = delete;

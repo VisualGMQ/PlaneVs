@@ -108,6 +108,8 @@ App::~App() {
     Logi("App::~App", "Director destroyed");
     Font::DestroyAll();
     Logi("App::~App", "Font destroyed");
+    TextureRepo::DestroyAll();
+    Logi("App::~App", "TextureRepo destroyed");
     Texture::DestroyAll();
     Logi("App::~App", "Texture destroyed");
     GLGfxBufManager::Destroy();

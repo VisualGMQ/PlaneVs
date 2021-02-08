@@ -15,6 +15,7 @@
 #include "base/gl_program.hpp"
 #include "base/gl_gfxbuf.hpp"
 #include "base/texture.hpp"
+#include "base/texture_repo.hpp"
 #include "engin/stage.hpp"
 #include "engin/sprite.hpp"
 #include "engin/bgm.hpp"

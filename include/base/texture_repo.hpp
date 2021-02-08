@@ -34,6 +34,9 @@ class TextureRepo final: public Destroyable {
     static TextureRepo* CreateEmptyRepo();
     static TextureRepo* CreateFromDir(fs::path dir);
     static TextureRepo* CreateFromSheet(fs::path sheet);
+    static void DestroyAll() {
+        _instances.clear();
+    }
     ~TextureRepo();
     void AddSheet(fs::path json_filename);
     TextureInSheet* operator[](string name);

@@ -48,8 +48,7 @@ class IdInstanceManager {
      static void Destroy() {
          for (MANAGED_TYPE* buf : _instances)
              delete buf;
-         const auto& t = typeid(MANAGED_TYPE);
-         Logi("Manager::Destroy", "Manager<%s> Destoryed", t.name());
+         _instances.clear();
      }
 
  private:

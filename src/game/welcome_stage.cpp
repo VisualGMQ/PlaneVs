@@ -33,19 +33,22 @@ void WelcomeStage::Init() {
     sprite->SetKeyColor(32, 32, 32);
     _plane->AddCharger(new Charger(sprite, prop, 10));
 
-    ControllerButtonMap key_map;
-    key_map.left = SDLK_a;
-    key_map.right = SDLK_d;
-    key_map.up = SDLK_w;
-    key_map.down = SDLK_s;
-    key_map.shoot = SDLK_j;
-    key_map.bomb = SDLK_k;
-    key_map.blast = SDLK_o;
-    KeyboardController* controller = KeyboardController::Create(_plane, key_map);
-    Director::GetInstance()->SetController(controller);
+    Logt("WelcomeStage::Init", "will new controller");
+    _controller = new Controller;
+    _controller->TrunOn();
+    Logt("WelcomeStage::Init", "will new commands");
+    _controller->SetUpCommand(new KeyboardCommand_Up(SDLK_w));
+    _controller->SetDownCommand(new KeyboardCommand_Down(SDLK_s));
+    _controller->SetLeftCommand(new KeyboardCommand_Left(SDLK_a));
+    _controller->SetRightCommand(new KeyboardCommand_Right(SDLK_d));
+    _controller->SetFireCommand(new KeyboardCommand_Fire(SDLK_j));
+    _controller->SetBombCommand(new KeyboardCommand_Bomb(SDLK_k));
+    _controller->SetBlastCommand(new KeyboardCommand_Blast(SDLK_o));
+    Logt("WelcomeStage::Init", "end");
 }
 
 void WelcomeStage::Step() {
+    _controller->Control(_plane);
     _enemy->Update();
     _plane->Update();
     _enemy->Draw();
@@ -53,7 +56,7 @@ void WelcomeStage::Step() {
 }
 
 void WelcomeStage::Destroy() {
-    Director::GetInstance()->SetController(nullptr);
+    delete _controller;
     delete _enemy;
     delete _plane;
     Logi("WelcomStage::Destroy", "WelcomeStage Destoryed");

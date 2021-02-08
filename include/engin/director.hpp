@@ -4,7 +4,6 @@
 #include <map>
 
 #include "engin/stage.hpp"
-#include "engin/controller.hpp"
 #include "engin/input/input.hpp"
 
 using std::vector;
@@ -24,11 +23,6 @@ class Director final {
     }
 
     GameStatus GetGameStatus() const { return _status; }
-    void SetController(Controller* controller) {
-        _controller = controller;
-        if (_controller)
-            controller->TrunOn();
-    }
     void SetGameStatus(GameStatus status) { _status = status; }
     void Exit();
     void Update();
@@ -39,12 +33,10 @@ class Director final {
  private:
     GameStatus _status = STOPPING;
     Stage* _stage = nullptr;
-    Controller* _controller = nullptr;
 
     static Director* director;
 
     Director() = default;
-    void controllerUpdate();
 };
 
 #endif

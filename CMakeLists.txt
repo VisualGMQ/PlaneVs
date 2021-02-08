@@ -67,7 +67,7 @@ aux_source_directory(src/base SRC)
 aux_source_directory(src/engin SRC)
 aux_source_directory(src/engin/input SRC)
 aux_source_directory(src/game SRC)
-aux_source_directory(src/game/controllers SRC)
+aux_source_directory(src/game/controller SRC)
 aux_source_directory(src/image_sheet SRC)
 
 set(GAME_EXE_NAME ${CMAKE_PROJECT_NAME})
