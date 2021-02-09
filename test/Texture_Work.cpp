@@ -10,23 +10,22 @@ using namespace std;
 class Texture_Work: public Stage {
  public:
     void Init() override {
-        SDL_Surface* surface = IMG_Load("./test_resources/sword.png");
-        _texture1 = Texture::Create(surface);
-        SDL_FreeSurface(surface);
-        surface = IMG_Load("./test_resources/cube_man.png");
-        _texture2 = Texture::Create(surface);
-        SDL_FreeSurface(surface);
+        _render = Director::GetInstance()->GetRender();
+        SDL_Texture* texture = IMG_LoadTexture(_render, "./test_resources/sword.png");
+        _texture1 = Texture::Create(texture);
+        texture = IMG_LoadTexture(_render, "./test_resources/cube_man.png");
+        _texture2 = Texture::Create(texture);
     }
 
     void EventHandle(SDL_Event&) override {}
 
     void Step() override {
         irect rect = {100, 100, _texture1->GetSize().w, _texture1->GetSize().h};
-        _texture1->Draw(nullptr, &rect, nullptr, nullptr);
+        _texture1->Draw(_render, nullptr, &rect, nullptr);
         rect.x = 400;
         rect.w = _texture2->GetSize().w;
         rect.h = _texture2->GetSize().h;
-        _texture2->Draw(nullptr, &rect, nullptr, nullptr);
+        _texture2->Draw(_render, nullptr, &rect, nullptr);
     }
 
     void Destroy() override {
@@ -39,6 +38,7 @@ class Texture_Work: public Stage {
  private:
     Texture* _texture1 = nullptr;
     Texture* _texture2 = nullptr;
+    SDL_Renderer* _render = nullptr;
 
 };
 

@@ -6,11 +6,11 @@
 #include <filesystem>
 
 #include "base/log.hpp"
-#include "base/geomentry.hpp"
+#include "base/geo_math.hpp"
 #include "base/texture_drawable.hpp"
 #include "base/texture.hpp"
-#include "image_sheet/image_sheet.hpp"
 #include "base/destroyable.hpp"
+#include "image_sheet/image_sheet.hpp"
 using std::map;
 using std::string;
 using std::forward_list;
@@ -21,8 +21,8 @@ class TextureInSheet final: public ITexture {
     TextureInSheet() = default;
     TextureInSheet(irect area, Texture* sheet):_area(area),_sheet(sheet) {}
     isize GetSize() const override { return {_area.w, _area.h}; }
-    void Draw(irect* src_rect, irect* dst_rect, icolor* tex_color, icolor* key_color) const override;
-    void Draw(irect* src_rect, irect* dst_rect, float degree, FlipEnum flip, icolor* tex_color, icolor* key_color) const override;
+    void Draw(SDL_Renderer*,irect* src_rect, irect* dst_rect, icolor* tex_color) const override;
+    void Draw(SDL_Renderer*, irect* src_rect, irect* dst_rect, float degree, FlipEnum flip, icolor* tex_color) const override;
 
  private:
     irect _area;
@@ -32,13 +32,13 @@ class TextureInSheet final: public ITexture {
 class TextureRepo final: public Destroyable {
  public:
     static TextureRepo* CreateEmptyRepo();
-    static TextureRepo* CreateFromDir(fs::path dir);
-    static TextureRepo* CreateFromSheet(fs::path sheet);
+    static TextureRepo* CreateFromDir(SDL_Renderer* render, fs::path dir, icolor* key_color = nullptr);
+    static TextureRepo* CreateFromSheet(SDL_Renderer* render, fs::path sheet, icolor* key_color = nullptr);
     static void DestroyAll() {
         _instances.clear();
     }
     ~TextureRepo();
-    void AddSheet(fs::path json_filename);
+    void AddSheet(SDL_Renderer* render, fs::path json_filename, icolor* key_color);
     TextureInSheet* operator[](string name);
     int GetSize() const;
     TextureInSheet* Get(string name);
@@ -51,7 +51,7 @@ class TextureRepo final: public Destroyable {
     static forward_list<TextureRepo> _instances;
 
     TextureRepo() = default;
-    void loadSheet(fs::path sheet_filename);
+    void loadSheet(SDL_Renderer* render, fs::path sheet_filename, icolor* key_color);
 };
 
 

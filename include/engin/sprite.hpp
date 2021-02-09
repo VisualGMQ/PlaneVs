@@ -8,12 +8,13 @@
 
 #include "base/tools.hpp"
 #include "base/texture.hpp"
-#include "base/geomentry.hpp"
+#include "base/geo_math.hpp"
 #include "engin/movable.hpp"
 #include "engin/rotatable.hpp"
 #include "engin/resizable.hpp"
 #include "engin/flipable.hpp"
 #include "engin/isprite.hpp"
+#include "engin/director.hpp"
 using std::string;
 using std::forward_list;
 using glm::vec2;
@@ -24,21 +25,10 @@ class Sprite: virtual public Resizable, public Rotatable, public ISprite {
  public:
     friend SpriteSheetCache;
 
-    static Sprite* Create(string filename, irect* area = nullptr);
+    static Sprite* Create(string filename, icolor* key_color = nullptr, irect* area = nullptr);
 
     void SetClipArea(irect area) { _clip_area = area; }
     irect GetClipArea() const { return _clip_area; }
-    void SetKeyColor(int r, int g, int b) {
-        _key_color.r = Clamp(0, 255, r);
-        _key_color.g = Clamp(0, 255, g);
-        _key_color.b = Clamp(0, 255, b);
-    }
-    icolor GetKeyColor() const { return _key_color; }
-    void SetColor(int r, int g, int b) {
-        _color.r = Clamp(0, 255, r);
-        _color.g = Clamp(0, 255, g);
-        _color.b = Clamp(0, 255, b);
-    }
     void SetOpacity(int value) {
         _color.a = Clamp(0, 255, value);
     }
@@ -48,6 +38,7 @@ class Sprite: virtual public Resizable, public Rotatable, public ISprite {
             return _texture->GetSize();
         return isize();
     }
+    void SetColor(int r, int g, int b);
     icolor GetColor() const { return _color; }
     Sprite* Copy();
     ISprite* CopyISprite() override;
@@ -59,7 +50,6 @@ class Sprite: virtual public Resizable, public Rotatable, public ISprite {
 
  private:
     icolor _color = {255, 255, 255, 255};
-    icolor _key_color = {-255, -255, -255, 0};
     ITexture* _texture = nullptr;
     irect _clip_area;
 

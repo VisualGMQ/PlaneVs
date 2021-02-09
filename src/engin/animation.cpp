@@ -74,13 +74,6 @@ void Animation::Scale(float scale_x, float scale_y) {
     _scale.y = scale_y;
 }
 
-void Animation::SetKeyColor(int r, int g, int b) {
-    for (Frame& frame : _frames) {
-        if (frame.sprite)
-            frame.sprite->SetKeyColor(r, g, b);
-    }
-}
-
 void Animation::SetColor(int r, int g, int b) {
     for (Frame& frame : _frames) {
         if (frame.sprite)
@@ -159,8 +152,9 @@ Animation* Animation::Copy() {
     for (int i = 0; i < this->_frames.size(); i++) {
         ani->AddFrame(this->_frames[i].sprite, this->_frames[i].time);
     }
+    return ani;
 }
 
 ISprite* Animation::CopyISprite() {
-
+    return Copy();
 }

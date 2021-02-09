@@ -16,9 +16,10 @@ enum GameStatus {
 
 class Director final {
  public:
+    static void Init(SDL_Window* window, SDL_Renderer* render);
     static Director* GetInstance() {
         if (!director)
-            director = new Director;
+            Loge("static Director::GetInstance", "Director not init, please call Director::Init() first");
         return director;
     }
 
@@ -27,12 +28,16 @@ class Director final {
     void Exit();
     void Update();
     void SetStage(Stage* stage);
+    SDL_Window* GetWindow() { return _window; }
+    SDL_Renderer* GetRender() { return _render; }
     bool ShouldExit() const;
     void Destroy();
 
  private:
     GameStatus _status = STOPPING;
     Stage* _stage = nullptr;
+    SDL_Window* _window = nullptr;
+    SDL_Renderer* _render = nullptr;
 
     static Director* director;
 

@@ -2,8 +2,8 @@
 #define TEXTURE_HPP
 
 #include <string>
+#include <vector>
 
-#include <GL/glew.h>
 #include <SDL.h>
 #include <SDL_image.h>
 #include <glm/glm.hpp>
@@ -11,25 +11,24 @@
 
 #include "base/log.hpp"
 #include "base/config.hpp"
-#include "base/geomentry.hpp"
+#include "base/geo_math.hpp"
 #include "base/validable.hpp"
-#include "base/gl_program.hpp"
-#include "base/gl_gfxbuf.hpp"
 #include "base/itexture.hpp"
 #include "base/destroyable.hpp"
 
 using std::string;
+using std::vector;
 using glm::vec2;
 using glm::vec3;
 using glm::mat4;
 
 class Texture final: public Validable, public ITexture, public Destroyable {
  public:
-     static Texture* Create(SDL_Surface* surface);
+     static Texture* Create(SDL_Texture* texture);
      /*
       * @brief create independent texture, the texture must delete by your self(use `delete texture;`)
       */
-     static Texture* CreateIndependent(SDL_Surface* surface);
+     static Texture* CreateIndependent(SDL_Texture* texture);
      static void DestroyAll() {
          for (Texture* t : _instances)
              delete t; 
@@ -40,23 +39,18 @@ class Texture final: public Validable, public ITexture, public Destroyable {
      Texture(const Texture&) = delete;
      Texture& operator=(const Texture&) = delete;
      isize GetSize() const override;
-     void Load(SDL_Surface* surface);
-     void Draw(irect* src_rect, irect* dst_rect, icolor* tex_color, icolor* key_color) const override;
-     void Draw(irect* src_rect, irect*, float degree, FlipEnum flip, icolor* tex_color, icolor* key_color) const override;
+     void Load(SDL_Texture* texture);
+     void Draw(SDL_Renderer*, irect* src_rect, irect* dst_rect, icolor* tex_color) const override;
+     void Draw(SDL_Renderer*, irect* src_rect, irect*, float degree, FlipEnum flip, icolor* tex_color) const override;
      void Destroy() override;
      ~Texture();
 
  private:
      static vector<Texture*> _instances;
-
-     explicit Texture(SDL_Surface* surface);
-     void createTexture();
-     void bufferTextureData(SDL_Surface* surface);
-     mat4 calcPositionInfo(float x, float y) const;
-     mat4 calcRotateScaleInfo(irect clip_area, isize dst_size, float angle_degree, FlipEnum flip) const;
      isize _size;
+     SDL_Texture* _texture = nullptr;
 
-     GLuint _texture = 0;
+     explicit Texture(SDL_Texture* texture);
 };
 
 #endif

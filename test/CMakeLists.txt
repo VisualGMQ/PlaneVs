@@ -3,7 +3,6 @@ link_directories(${OPENGL_LIBRARY_DIRS} ${GLEW_LIBRARY_DIRS})
 link_libraries(${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
 
 file(COPY ./test_resources DESTINATION ${CMAKE_BINARY_DIR}/test)
-file(COPY ../shader DESTINATION ${CMAKE_BINARY_DIR}/test)
 
 set(TEST_SRC ${SRC})
 list(TRANSFORM TEST_SRC PREPEND ../)
@@ -16,3 +15,4 @@ add_executable(Texture_Work ./Texture_Work.cpp ${TEST_SRC})
 add_executable(Music_Work ./Music_Work.cpp ${TEST_SRC})
 add_executable(MusicRepo_Work ./MusicRepo_Work.cpp ${TEST_SRC})
 add_executable(Text_Work ./Text_Work.cpp ${TEST_SRC})
+add_executable(Font_Work ./Font_Work.cpp ${TEST_SRC})

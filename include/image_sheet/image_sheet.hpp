@@ -13,7 +13,7 @@
 #include <glm/glm.hpp>
 
 #include "base/log.hpp"
-#include "base/geomentry.hpp"
+#include "base/geo_math.hpp"
 #include "base/validable.hpp"
 using std::ifstream;
 using std::string;

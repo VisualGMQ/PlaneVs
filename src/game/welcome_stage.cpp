@@ -3,11 +3,12 @@
 void WelcomeStage::Init() {
     SetLogLevel(LOG_ALL);
 
+    icolor key_color = {32, 32, 32, 255};
+
     PlaneProperty plane_prop;
     plane_prop.hp = 20;
     plane_prop.speed = 5;
-    Sprite* sp = Sprite::Create("resources/enemy1.png");
-    sp->SetKeyColor(32, 32, 32);
+    Sprite* sp = Sprite::Create("resources/enemy1.png", &key_color);
     _enemy = new Plane(sp, plane_prop);
 
     BulletProperty prop;
@@ -15,28 +16,23 @@ void WelcomeStage::Init() {
     prop.speed = 8;
     prop.direction.x = 0;
     prop.direction.y = 1;
-    Sprite* sprite = Sprite::Create("resources/enemy_bullet1.png");
-    sprite->SetKeyColor(32, 32, 32);
+    Sprite* sprite = Sprite::Create("resources/enemy_bullet1.png", &key_color);
     Charger* charger = new Charger(sprite, prop, 10);
     _enemy->AddCharger(charger);
     _enemy->MoveTo(100, 100);
     _enemy->Show();
 
-    _cache = SpriteSheetCache::Create("resources/player_plane.json");
+    _cache = SpriteSheetCache::Create("resources/player_plane.json", &key_color);
     sprite = _cache->CreateSprite("player_plane");
-    sprite->SetKeyColor(32, 32, 32);
     _plane = new Plane(sprite, plane_prop);
     _plane->Show();
     _plane->MoveTo(400, 400);
     prop.direction.y = -1;
     sprite = _cache->CreateSprite("player_bullet");
-    sprite->SetKeyColor(32, 32, 32);
     _plane->AddCharger(new Charger(sprite, prop, 10));
 
-    Logt("WelcomeStage::Init", "will new controller");
     _controller = new Controller;
     _controller->TrunOn();
-    Logt("WelcomeStage::Init", "will new commands");
     _controller->SetUpCommand(new KeyboardCommand_Up(SDLK_w));
     _controller->SetDownCommand(new KeyboardCommand_Down(SDLK_s));
     _controller->SetLeftCommand(new KeyboardCommand_Left(SDLK_a));
@@ -44,7 +40,9 @@ void WelcomeStage::Init() {
     _controller->SetFireCommand(new KeyboardCommand_Fire(SDLK_j));
     _controller->SetBombCommand(new KeyboardCommand_Bomb(SDLK_k));
     _controller->SetBlastCommand(new KeyboardCommand_Blast(SDLK_o));
-    Logt("WelcomeStage::Init", "end");
+
+    Bgm::Load("test/test_resources/Mind Control.ogg");
+    Bgm::Play(0);
 }
 
 void WelcomeStage::Step() {

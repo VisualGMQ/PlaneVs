@@ -1,10 +1,10 @@
 #include "base/texture_repo.hpp"
 
-void TextureInSheet::Draw(irect* src_rect, irect* dst_rect, icolor* tex_color, icolor* key_color) const {
-    Draw(src_rect, dst_rect, 0, FLIP_NONE, tex_color, key_color);
+void TextureInSheet::Draw(SDL_Renderer* render, irect* src_rect, irect* dst_rect, icolor* tex_color) const {
+    Draw(render, src_rect, dst_rect, 0, FLIP_NONE, tex_color);
 }
 
-void TextureInSheet::Draw(irect* src_rect, irect* dst_rect, float degree, FlipEnum flip, icolor* tex_color, icolor* key_color) const {
+void TextureInSheet::Draw(SDL_Renderer* render, irect* src_rect, irect* dst_rect, float degree, FlipEnum flip, icolor* tex_color) const {
     if (!_sheet) {
         Logw("TextureInSheet::Draw", "TextureInSheet::Draw sheet is nullptr");
         return;
@@ -18,7 +18,7 @@ void TextureInSheet::Draw(irect* src_rect, irect* dst_rect, float degree, FlipEn
         src_rect_.w = GetSize().w;
         src_rect_.h = GetSize().h;
     }
-    _sheet->Draw(&src_rect_, dst_rect, degree, flip, tex_color, key_color);
+    _sheet->Draw(render, &src_rect_, dst_rect, degree, flip, tex_color);
 }
 
 forward_list<TextureRepo> TextureRepo::_instances;
@@ -28,20 +28,20 @@ TextureRepo* TextureRepo::CreateEmptyRepo() {
     return &_instances.front();
 }
 
-TextureRepo* TextureRepo::CreateFromSheet(fs::path sheet) {
+TextureRepo* TextureRepo::CreateFromSheet(SDL_Renderer* render, fs::path sheet, icolor* key_color) {
     _instances.push_front(TextureRepo());
     TextureRepo& repo = _instances.front();
-    repo.AddSheet(sheet);
+    repo.AddSheet(render, sheet, key_color);
     return &repo;
 }
 
-TextureRepo* TextureRepo::CreateFromDir(fs::path dir) {
+TextureRepo* TextureRepo::CreateFromDir(SDL_Renderer* render, fs::path dir, icolor* key_color) {
     _instances.push_front(TextureRepo());
     TextureRepo& repo = _instances.front();
     if (fs::exists(dir) && fs::is_directory(dir)) {
         for (auto& p : fs::recursive_directory_iterator(dir)) {
             if (p.path().extension() == ".json") {
-                repo.AddSheet(p.path());
+                repo.AddSheet(render, p.path(), key_color);
             }
         }
     }
@@ -62,11 +62,11 @@ bool TextureRepo::Empty() const {
     return _sheets.empty() && _textures.empty();
 }
 
-void TextureRepo::AddSheet(fs::path json_filename) {
-    loadSheet(json_filename);
+void TextureRepo::AddSheet(SDL_Renderer* render, fs::path json_filename, icolor* key_color) {
+    loadSheet(render, json_filename, key_color);
 }
 
-void TextureRepo::loadSheet(fs::path sheet_filename) {
+void TextureRepo::loadSheet(SDL_Renderer* render, fs::path sheet_filename, icolor* key_color) {
     if (!fs::exists(sheet_filename)) {
         Logw("TextureRepo::loadSheet" ,"%s not exists", sheet_filename.string().c_str());
         return;
@@ -78,8 +78,11 @@ void TextureRepo::loadSheet(fs::path sheet_filename) {
         return;
     }
     SDL_Surface* surface = IMG_Load(image_filename.c_str());
-    Texture* texture = Texture::Create(surface);
+    if (key_color)
+        SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, key_color->r, key_color->g, key_color->b));
+    SDL_Texture* tex = SDL_CreateTextureFromSurface(render, surface);
     SDL_FreeSurface(surface);
+    Texture* texture = Texture::Create(tex);
     _sheets[image_filename] = texture;
     for (const ImageInSheet& image : image_sheet.GetImages()) {
         if (_textures.find(image.GetName()) != _textures.end()) {

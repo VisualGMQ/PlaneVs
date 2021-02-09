@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 project(PlaneFight)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-add_compile_options(-std=c++17)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -std=c11")
 
 set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g -ggdb")
 
@@ -18,7 +19,6 @@ find_package(SDL2_image QUIET)
 find_package(SDL2_ttf QUIET)
 find_package(SDL2_mixer QUIET)
 find_package(JsonCpp QUIET)
-# find_package(GLEW QUIET)
 
 # 如果没有找到SDL2和GLEW，则尝试通过pkg-config来查找
 if(NOT SDL2_FOUND)
@@ -45,21 +45,13 @@ if(NOT SDL2_MIXER_FOUND)
     pkg_search_module(SDL2_mixer REQUIRED sdl2_mixer)
 endif()
 
-if(NOT GLEW_FOUND)
-    message(WARNING "cmake can't find glew, use pkg-config")
-    pkg_check_modules(REQUIRED GLEW)
-    pkg_search_module(GLEW REQUIRED glew)
-endif()
-
 if(NOT JsonCpp_FOUND)
     message(WARNING "cmake can't find jsoncpp, use pkg-config")
     pkg_check_modules(REQUIRED JsonCpp)
     pkg_search_module(JSONCPP REQUIRED jsoncpp)
 endif()
 
-find_package(OpenGL REQUIRED)
-
-include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_mixer_INCLUDE_DIRS} ${SDL2_image_INCLUDE_DIRS} ${SDL2_ttf_INCLUDE_DIRS} ./external ${JSONCPP_INCLUDE_DIRS})
+include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_mixer_INCLUDE_DIRS} ${SDL2_image_INCLUDE_DIRS} ${SDL2_ttf_INCLUDE_DIRS} ${JSONCPP_INCLUDE_DIRS} ./external)
 link_directories(${SDL2_LIBRARY_DIRS} ${SDL2_mixer_LIBRARY_DIRS} ${SDL2_image_LIBRARY_DIRS} ${SDL2_ttf_LIBRARY_DIRS} ${JSONCPP_LIBRARY_DIRS})
 link_libraries(${SDL2_LIBRARIES} ${SDL2_mixer_LIBRARIES} ${SDL2_image_LIBRARIES} ${SDL2_ttf_LIBRARIES} ${JSONCPP_LIBRARIES})
 
@@ -69,17 +61,13 @@ aux_source_directory(src/engin/input SRC)
 aux_source_directory(src/game SRC)
 aux_source_directory(src/game/controller SRC)
 aux_source_directory(src/image_sheet SRC)
+aux_source_directory(external SRC)
 
 set(GAME_EXE_NAME ${CMAKE_PROJECT_NAME})
 add_executable(${GAME_EXE_NAME} ${SRC} src/main.cpp)
 
+target_include_directories(${GAME_EXE_NAME} PRIVATE ./include)
 set_target_properties(${GAME_EXE_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR})
-
-message(STATUS ${GLEW_INCLDUE_DIRS})
-
-target_include_directories(${GAME_EXE_NAME} PRIVATE ./include ${OPENGL_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS})
-target_link_directories(${GAME_EXE_NAME} PRIVATE ${OPENGL_LIBRARY_DIRS} ${GLEW_LIBRARY_DIRS})
-target_link_libraries(${GAME_EXE_NAME} PRIVATE ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
 
 # macro for add test
 macro(MADD_TEST test_name)
@@ -100,6 +88,7 @@ if(DEFINED TEST)
     MADD_TEST(Texture_Work)
     MADD_TEST(Music_Work)
     MADD_TEST(MusicRepo_Work)
+    MADD_TEST(Font_Work)
     MADD_TEST(Text_Work)
 endif()
 

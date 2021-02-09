@@ -41,5 +41,19 @@ T GetCoverLen(T a1, T b1, T a2, T b2) {
     return 0;
 }
 
+#define VARARGS2BUF(buffer, size, start_args) \
+{ \
+    va_list ls; \
+    va_start(ls, start_args); \
+    vsnprintf(buffer, size, start_args, ls); \
+    va_end(ls); \
+}
+
+inline string Format2String(const char* format, ...) {
+    char buf[1024] = {0};
+    VARARGS2BUF(buf, sizeof(buf)-1, format);
+    return buf;
+}
+
 #endif
 

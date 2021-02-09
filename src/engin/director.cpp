@@ -2,6 +2,14 @@
 
 Director* Director::director = nullptr;
 
+void Director::Init(SDL_Window* window, SDL_Renderer* render) {
+    if (director)
+        delete director;
+    director = new Director;
+    director->_window = window;
+    director->_render = render;
+}
+
 void Director::Update() {
     if (_stage) {
         _stage->Step();

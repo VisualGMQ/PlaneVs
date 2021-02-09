@@ -8,8 +8,10 @@ using namespace std;
 class TextureRepo_Work: public Stage {
  public:
     void Init() override {
-        _repo1 = TextureRepo::CreateFromSheet("./test_resources/test_pngs/icons.json");
-        _repo2 = TextureRepo::CreateFromSheet("./test_resources/mario/mario.json");
+        SetLogLevel(LOG_ALL);
+        _render = Director::GetInstance()->GetRender();
+        _repo1 = TextureRepo::CreateFromSheet(_render, "./test_resources/test_pngs/icons.json");
+        _repo2 = TextureRepo::CreateFromSheet(_render, "./test_resources/mario/mario.json");
     }
 
     void EventHandle(SDL_Event&) override {}
@@ -37,12 +39,13 @@ class TextureRepo_Work: public Stage {
  private:
     TextureRepo* _repo1 = nullptr;
     TextureRepo* _repo2 = nullptr;
+    SDL_Renderer* _render = nullptr;
 
     void drawSheet(TextureRepo* repo, string name, int x, int y) {
         auto texture = repo->Get(name);
         if (texture) {
             irect dst_rect = {x, y, texture->GetSize().w, texture->GetSize().h};
-            texture->Draw(nullptr, &dst_rect, nullptr, nullptr);
+            texture->Draw(_render, nullptr, &dst_rect, nullptr);
         } else {
             Loge("TextureRepo_Work::drawSheet", "%s can't find", name.c_str());
         }

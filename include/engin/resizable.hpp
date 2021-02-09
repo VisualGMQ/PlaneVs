@@ -1,6 +1,6 @@
 #ifndef RESIZABLE_HPP
 #define RESIZABLE_HPP
-#include "base/geomentry.hpp"
+#include "base/geo_math.hpp"
 
 class Resizable {
  public:

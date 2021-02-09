@@ -13,7 +13,6 @@ class SpriteSheetCache_Work: public Stage {
 
         _animation->MoveTo(300, 300);
         _animation->Scale(4, 4);
-        _animation->SetKeyColor(184, 203, 212);
         _animation->SetLoop(Animation::LOOP_INFINITE);
         _animation->EnableRestoreOriginFrame();
         _animation->SetFlip(FLIP_HORIZENTAL);

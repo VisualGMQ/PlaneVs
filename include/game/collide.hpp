@@ -2,7 +2,7 @@
 #define COLLIDE_HPP
 #include <glm/glm.hpp>
 
-#include "base/geomentry.hpp"
+#include "base/geo_math.hpp"
 #include "base/tools.hpp"
 using glm::vec2;
 

@@ -38,7 +38,6 @@ class Animation final: public Rotatable, public ISprite {
     void EnableRestoreOriginFrame() { _restore_origin = true; }
     void DisableRestoreOriginFrame() { _restore_origin = false; }
     bool IsRestoreOriginFrame() const { return _restore_origin; }
-    void SetKeyColor(int r, int g, int b);
     void SetColor(int r, int g, int b);
     void SetOpacity(int value);
 

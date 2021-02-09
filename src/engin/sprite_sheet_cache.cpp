@@ -2,8 +2,8 @@
 
 forward_list<SpriteSheetCache> SpriteSheetCache::_instances;
 
-SpriteSheetCache* SpriteSheetCache::Create(string sheet_filename) {
-    SpriteSheetCache cache(sheet_filename);
+SpriteSheetCache* SpriteSheetCache::Create(string sheet_filename, icolor* key_color) {
+    SpriteSheetCache cache(sheet_filename, key_color);
     SpriteSheetCache::_instances.push_front(cache);
     return &SpriteSheetCache::_instances.front();
 }

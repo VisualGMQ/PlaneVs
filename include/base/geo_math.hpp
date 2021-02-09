@@ -1,5 +1,8 @@
-#ifndef GEOMENTRY_HPP
-#define GEOMENTRY_HPP
+#ifndef GEO_MATH_HPP
+#define GEO_MATH_HPP
+#include <glm/glm.hpp>
+
+#include <SDL.h>
 
 /*
  * @param x     center x in rect
@@ -40,6 +43,17 @@ struct color_base {
 };
 using icolor = color_base<int>;
 using color = color_base<float>;
+
+template <typename T>
+struct scale_base {
+    T x;
+    T y;
+};
+using scale = scale_base<float>;
+
+void IRect2SDL_Rect(irect& irect, SDL_Rect& sdl_rect);
+void IColor2SDL_Color(icolor& color, SDL_Color& sdl_color);
+void IVec22SDL_Point(glm::ivec2& vec, SDL_Point& point);
 
 #endif
 

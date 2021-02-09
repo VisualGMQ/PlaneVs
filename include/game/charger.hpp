@@ -4,7 +4,7 @@
 
 #include "base/log.hpp"
 #include "base/config.hpp"
-#include "base/geomentry.hpp"
+#include "base/geo_math.hpp"
 #include "game/bullet.hpp"
 using std::vector;
 

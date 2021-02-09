@@ -1,13 +1,18 @@
 #include "engin/app.hpp"
 
+void quitSDL() {
+    IMG_Quit();
+    TTF_Quit();
+    Mix_CloseAudio();
+    Mix_Quit();
+    SDL_Quit();
+}
+
 App::App(Stage* stage) {
     initSystem();
     Logi("App::App", "System inited");
-    CreatePresetPrograms();
-    Logi("App::App", "programs inited");
-    initGLBuffers();
-    Logi("App::App", "gl buffers inited");
     Director::GetInstance()->SetStage(stage);
+    atexit(quitSDL);
 }
 
 void App::SetTitle(string title) {
@@ -16,18 +21,10 @@ void App::SetTitle(string title) {
 
 void App::initSystem() {
     Assertm(SDL_Init(SDL_INIT_EVERYTHING) == 0, "App::initSystem", "App::initSystem", "SDL init failed");
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
-                        SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);
-    Logi("App::initSystem", "SDL inited");
+    SDL_SetHintWithPriority(SDL_HINT_FRAMEBUFFER_ACCELERATION, "1", SDL_HINT_OVERRIDE);
+    SDL_SetHintWithPriority(SDL_HINT_RENDER_OPENGL_SHADERS, "1", SDL_HINT_OVERRIDE);
+    SDL_SetHintWithPriority(SDL_HINT_RENDER_SCALE_QUALITY, "1", SDL_HINT_OVERRIDE);
+    SDL_SetHintWithPriority(SDL_HINT_RENDER_VSYNC, "1", SDL_HINT_OVERRIDE);
 
     IMG_Init(IMG_INIT_JPG|IMG_INIT_PNG);
     TTF_Init();
@@ -41,43 +38,28 @@ void App::initSystem() {
         _window_size.w, _window_size.h,
         SDL_WINDOW_SHOWN|SDL_WINDOW_RESIZABLE|SDL_WINDOW_OPENGL);
     Assertm(_window != nullptr, "App::initSystem", "window create failed");
+    _render = SDL_CreateRenderer(_window, -1, 0);
+    Assertm(_render != nullptr, "App::initSystem", "render create failed");
+    Director::Init(_window, _render);
 
-    SDL_GL_CreateContext(_window);
+    SDL_SetRenderDrawBlendMode(_render, SDL_BLENDMODE_BLEND);
 
-    glewExperimental = true;
-    Assertm(glewInit() == GLEW_OK, "App::initSystem", "glew init failed");
-    Logi("App::initSystem", "glew inited");
+    _canva = SDL_CreateTexture(_render, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, CanvaSize.w, CanvaSize.h);
 
-    glViewport(0, 0, _window_size.w, _window_size.h);
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_STENCIL_TEST);
-
-    _projection = glm::ortho(0.0f, static_cast<float>(_window_size.w), static_cast<float>(_window_size.h), 0.0f, -1.0f, 1.0f);
-}
-
-void App::initGLBuffers() {
-    CreatePresetGfxBufs();
-    _gfx_buf = GLGfxBufManager::GetById(SYSTEM_GFXBUF_ID);
-    Logi("App::initGLBuffers", "system gfx buffer created");
 }
 
 void App::Run() {
     Director* director = Director::GetInstance();
     while (!director->ShouldExit()) {
         const int tick = SDL_GetTicks();
-        glClearColor(_clear_color.r, _clear_color.g, _clear_color.b, _clear_color.a);
-        glClear(GL_COLOR_BUFFER_BIT|GL_STENCIL_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-        glBindBuffer(GL_ARRAY_BUFFER, _gfx_buf->vbo);
-        glBindVertexArray(_gfx_buf->vao);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _gfx_buf->ebo);
+        SDL_SetRenderTarget(_render, _canva);
+        SDL_SetRenderDrawColor(_render, _clear_color.r, _clear_color.g, _clear_color.b, _clear_color.a);
+        SDL_RenderClear(_render);
         eventHandle();
-        GLProgramManager::GetById(TEXTURE_PROGRAM_ID)->UniformMat4("projection", _projection);
         director->Update();
-        SDL_GL_SwapWindow(_window);
-
+        SDL_SetRenderTarget(_render, nullptr);
+        SDL_RenderCopy(_render, _canva, nullptr, nullptr);
+        SDL_RenderPresent(_render);
         const int delay_time = round(1000.0/FPS);
         const int delta_tick= SDL_GetTicks() - tick;
         if (delta_tick <= delay_time) {
@@ -90,11 +72,6 @@ void App::Run() {
 
 void App::eventHandle() {
     while (SDL_PollEvent(&_event)) {
-        if (_event.type == SDL_WINDOWEVENT) {
-            if (_event.window.event == SDL_WINDOWEVENT_RESIZED) {
-                 glViewport(0, 0, _event.window.data1, _event.window.data2);
-            }
-        }
         if (_event.type == SDL_QUIT)
             Director::GetInstance()->Exit();
         Keyboard::GetInstance()->ReceiveEvent(_event);
@@ -112,20 +89,14 @@ App::~App() {
     Logi("App::~App", "TextureRepo destroyed");
     Texture::DestroyAll();
     Logi("App::~App", "Texture destroyed");
-    GLGfxBufManager::Destroy();
-    Logi("App::~App", "GLGfxBufManager destroyed");
-    GLProgramManager::Destroy();
-    Logi("App::~App", "GLProgramManager destroyed");
     Bgm::Destroy();
     Logi("App::~App", "Bgm destroyed");
     Music::DestroyAll();
     Logi("App::~App", "Music destroyed");
+    SDL_DestroyTexture(_canva);
     SDL_DestroyWindow(_window);
     Logi("App::~App", "Window destroyed");
-    IMG_Quit();
-    TTF_Quit();
-    Mix_CloseAudio();
-    Mix_Quit();
-    SDL_Quit();
+    SDL_DestroyRenderer(_render);
+    Logi("App::~App", "Renderer destroyed");
     Logi("App::~App", "All system quit, App finished");
 }
