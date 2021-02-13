@@ -19,6 +19,7 @@
 #include "engin/text.hpp"
 #include "engin/director.hpp"
 #include "engin/input/input.hpp"
+#include "engin/ui/ui.hpp"
 using std::to_string;
 
 void quitSDL();

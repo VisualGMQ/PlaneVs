@@ -25,6 +25,7 @@ class Text final: public Destroyable {
     void SetText(const char* format, ...);
     icolor GetColor() const { return _color; }
     void SetColor(int r, int g, int b, int a);
+    isize GetSize();
     string GetText() const;
     void Draw(int x, int y);
     void Destroy() override;
@@ -35,7 +36,6 @@ class Text final: public Destroyable {
     Font* _font = nullptr;
     icolor _color;
     isize _size;
-    Texture* _texture = nullptr;
 
     Text(Font* font, string text, icolor color);
 

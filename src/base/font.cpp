@@ -77,8 +77,7 @@ void Font::DrawBox(SDL_Renderer* render, FontAlignment align, irect box, icolor 
     char buf[1024];
     VARARGS2BUF(buf, sizeof(buf)-1, format);
 
-    SDL_Rect rect;
-    IRect2SDL_Rect(box, rect);
+    SDL_Rect rect = IRect2SDL_Rect(box);
     FC_DrawBoxEffect(_font, render, rect, effect, buf);
 }
 

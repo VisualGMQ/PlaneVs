@@ -5,7 +5,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -std=c11")
 
-set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g -ggdb")
+set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -Og -Wall -g -ggdb")
+set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O2")
 
 if(${CMAKE_BUILD_TYPE} MATCHES "Debug")
     set(TOOL ON)
@@ -58,6 +59,7 @@ link_libraries(${SDL2_LIBRARIES} ${SDL2_mixer_LIBRARIES} ${SDL2_image_LIBRARIES}
 aux_source_directory(src/base SRC)
 aux_source_directory(src/engin SRC)
 aux_source_directory(src/engin/input SRC)
+aux_source_directory(src/engin/ui SRC)
 aux_source_directory(src/game SRC)
 aux_source_directory(src/game/controller SRC)
 aux_source_directory(src/image_sheet SRC)
@@ -67,7 +69,8 @@ set(GAME_EXE_NAME ${CMAKE_PROJECT_NAME})
 add_executable(${GAME_EXE_NAME} ${SRC} src/main.cpp)
 
 target_include_directories(${GAME_EXE_NAME} PRIVATE ./include)
-set_target_properties(${GAME_EXE_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR})
+
+file(COPY resources DESTINATION ${PROJECT_BINARY_DIR})
 
 # macro for add test
 macro(MADD_TEST test_name)
@@ -90,6 +93,7 @@ if(DEFINED TEST)
     MADD_TEST(MusicRepo_Work)
     MADD_TEST(Font_Work)
     MADD_TEST(Text_Work)
+    MADD_TEST(UI_Work)
 endif()
 
 if (DEFINED TOOL)

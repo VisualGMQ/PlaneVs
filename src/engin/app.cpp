@@ -12,6 +12,7 @@ App::App(Stage* stage) {
     initSystem();
     Logi("App::App", "System inited");
     Director::GetInstance()->SetStage(stage);
+    imgui::Init(_render);
     atexit(quitSDL);
 }
 
@@ -55,11 +56,13 @@ void App::Run() {
         SDL_SetRenderTarget(_render, _canva);
         SDL_SetRenderDrawColor(_render, _clear_color.r, _clear_color.g, _clear_color.b, _clear_color.a);
         SDL_RenderClear(_render);
+        imgui::Prepare();
         eventHandle();
         director->Update();
         SDL_SetRenderTarget(_render, nullptr);
         SDL_RenderCopy(_render, _canva, nullptr, nullptr);
         SDL_RenderPresent(_render);
+        imgui::Finish();
         const int delay_time = round(1000.0/FPS);
         const int delta_tick= SDL_GetTicks() - tick;
         if (delta_tick <= delay_time) {
@@ -74,6 +77,7 @@ void App::eventHandle() {
     while (SDL_PollEvent(&_event)) {
         if (_event.type == SDL_QUIT)
             Director::GetInstance()->Exit();
+        imgui::EventHandle(_event);
         Keyboard::GetInstance()->ReceiveEvent(_event);
         Mouse::GetInstance()->ReceiveEvent(_event);
     }
@@ -89,6 +93,8 @@ App::~App() {
     Logi("App::~App", "TextureRepo destroyed");
     Texture::DestroyAll();
     Logi("App::~App", "Texture destroyed");
+    imgui::Quit();
+    Logi("App::~App", "imgui quited");
     Bgm::Destroy();
     Logi("App::~App", "Bgm destroyed");
     Music::DestroyAll();

@@ -9,9 +9,15 @@ Text* Text::Create(Font* font, string text, icolor color) {
 
 Text::Text(Font* font, string text, icolor color) {
     _font = font;
-    _texture = Texture::CreateIndependent(nullptr);
     SetText(text.c_str());
     SetColor(color.r, color.g, color.b, color.a);
+}
+
+isize Text::GetSize() {
+    if (_font) {
+        return _font->GetSizeByText(_text);
+    }
+    return {0, 0};
 }
 
 void Text::SetText(const char* format, ...) {
@@ -32,10 +38,8 @@ void Text::SetColor(int r, int g, int b, int a) {
 }
 
 void Text::Draw(int x, int y) {
-    if (_texture) {
-        if (_font) {
-            _font->Draw(Director::GetInstance()->GetRender(), x, y, _color, {1, 1}, _text.c_str());
-        }
+    if (_font) {
+        _font->Draw(Director::GetInstance()->GetRender(), x, y, _color, {1, 1}, _text.c_str());
     }
 }
 

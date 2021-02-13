@@ -4,6 +4,8 @@
 
 #include <SDL.h>
 
+#include "base/tools.hpp"
+
 /*
  * @param x     center x in rect
  * @param y     center y in rect
@@ -51,9 +53,10 @@ struct scale_base {
 };
 using scale = scale_base<float>;
 
-void IRect2SDL_Rect(irect& irect, SDL_Rect& sdl_rect);
-void IColor2SDL_Color(icolor& color, SDL_Color& sdl_color);
-void IVec22SDL_Point(glm::ivec2& vec, SDL_Point& point);
+SDL_Rect IRect2SDL_Rect(irect& irect);
+SDL_Color IColor2SDL_Color(icolor& color);
+SDL_Point IVec2SDL_Point(glm::ivec2& vec);
+SDL_Rect CenterRect2SDL_Rect(int x, int y, int w, int h);
+SDL_Rect CenterRect2SDL_Rect(irect& rect);
 
 #endif
-
