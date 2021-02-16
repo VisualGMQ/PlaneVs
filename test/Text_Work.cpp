@@ -13,6 +13,7 @@ class Text_Workable: public Stage {
     void EventHandle(SDL_Event&) override {}
 
     void Step() override {
+        auto render = Director::GetInstance()->GetRender();
         _text2->Draw(100, 100);
         _text1->Draw(100, 300);
     }

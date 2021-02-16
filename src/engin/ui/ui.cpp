@@ -3,11 +3,11 @@
 SDL_Renderer* imgui::gRender = nullptr;
 Text* imgui::gText = nullptr;
 SDL_Texture* imgui::gCanva = nullptr;
-imgui::UIState imgui::uistate = {ID_NONE, ID_NONE, ID_NONE, ID_NONE, glm::ivec2(0, 0), imgui::BUTTON_RELEASING, BUTTON_RELEASING, BUTTON_RELEASING, 0, ID_NONE, SDLK_UNKNOWN, KMOD_NONE};
+imgui::UIState imgui::uistate = {ID_NONE, ID_NONE, ID_NONE, ID_NONE, glm::ivec2(0, 0), imgui::BUTTON_RELEASING, BUTTON_RELEASING, BUTTON_RELEASING, 0, ID_NONE, SDLK_UNKNOWN, KMOD_NONE, "", false};
 
 void imgui::Init(SDL_Renderer* renderer) {
     gRender = renderer;
-    Font* font = Font::Create(gRender, "resources/SimHei.ttf", 25, FONT_STYLE_NORMAL);
+    Font* font = Font::Create(gRender, "test_resources/SimHei.ttf", 25, FONT_STYLE_NORMAL);
     gText = Text::Create(font, "", {255, 255, 255, 255});
     gCanva = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, CanvaSize.w, CanvaSize.h);
 }
@@ -64,6 +64,10 @@ void imgui::EventHandle(SDL_Event& event) {
             sign = -1;
         uistate.wheel = sign*event.wheel.y;
     }
+    if (event.type == SDL_TEXTINPUT) {
+        uistate.input_text = event.text.text;
+        uistate.inputted = true;
+    }
     if (event.type == SDL_KEYDOWN) {
         uistate.keycode = event.key.keysym.sym;
         uistate.keymode = event.key.keysym.mod;
@@ -76,18 +80,20 @@ void imgui::EventHandle(SDL_Event& event) {
     }
 }
 
+void imgui::ClearFocus() {
+    uistate.active_item = ID_NONE;
+}
+
 void imgui::Prepare() {
     uistate.hot_item = ID_NONE; 
     uistate.wheel = 0;
     uistate.keycode = SDLK_UNKNOWN;
+    uistate.inputted = false;
 }
 
 void imgui::Finish() {
     uistate.old_hot_item = uistate.hot_item;
     uistate.old_active_item = uistate.active_item;
-    if (uistate.active_item != ID_NONE && (uistate.left_button_state != BUTTON_PRESSED && uistate.left_button_state != BUTTON_PRESSING)) {
-        uistate.active_item = ID_NONE;
-    }
 #define CHANGE_BUTTON_STATE(button) \
     do { \
         if (button == BUTTON_PRESSED) \

@@ -27,7 +27,7 @@ extern SDL_Texture* gCanva;
  * @warn don't use this twice in one line, because it used `__LINE__`
  */
 // FIXME error ocurred
-#define GenID() (int)(__LINE__)
+// #define GenID() (int)(__LINE__)
 
 enum ButtonState {
     BUTTON_PRESSED,
@@ -51,6 +51,10 @@ struct UIState {
     IDType kdb_item;
     SDL_Keycode keycode;
     Uint16 keymode;
+
+    // for SDL_TEXTINPUT
+    string input_text;
+    bool inputted;
 };
 
 extern UIState uistate;
@@ -77,6 +81,7 @@ enum EventType {
 
 void EventHandle(SDL_Event& event);
 void Init(SDL_Renderer*);
+void ClearFocus();
 void Prepare();
 void Finish();
 void Quit();
@@ -84,7 +89,7 @@ void Quit();
 // widgets
 // x, y, is left-top point of widgets
 
-// button
+// Button
 using ButtonDrawCb = void(*)(IDType id, EventType, string, int, int, int, int, void*);
 
 void DefaultButtonDrawCb(IDType id, EventType evt, string text, int x, int y, int w, int h, void* param);
@@ -96,21 +101,28 @@ enum ScrollbarDirection {
     SCROLLBAR_HORIZONTAL
 };
 
-// scrollbar
+// Scrollbar
 constexpr int ScrollbarWidth = 20;
 
 using ScrollbarDrawCb = void(*)(IDType, ScrollbarDirection, EventType, int, int, int, int, int, int, int, void*);
-
 void DefaultScrollbarDrawCb(IDType, ScrollbarDirection, EventType, int x, int y, int len, int min, int max, int value, int button_len, void*);
-
 EventType Scrollbar(IDType id, ScrollbarDirection direction, int x, int y, int len, int min, int max, int& value, int button_len, ScrollbarDrawCb draw_cb = DefaultScrollbarDrawCb, void* param = nullptr);
 
 // CheckBox
 using CheckboxDrawCb = void(*)(IDType, EventType, int, int, int, bool, void*);
-
 void DefaultCheckboxDrawCb(IDType id, EventType, int x, int y, int boarder_len, bool is_checked, void* param);
-
 EventType Checkbox(IDType id, int x, int y, int boarder_len, bool& is_checked, CheckboxDrawCb draw_cb = DefaultCheckboxDrawCb, void* param = nullptr);
+
+// Label
+using LabelDrawCb = void(*)(IDType, EventType, int, int, const icolor&, Font*, const string&, void*);
+void DefaultLabelDrawCb(IDType, EventType, int x, int y, const icolor&, Font*, const string&, void*);
+EventType Label(IDType id, int x, int y, const icolor& color, Font* font, const string& text, LabelDrawCb draw_cb = DefaultLabelDrawCb, void* param = nullptr);
+
+// InputBox
+using InputboxDrawCb = void(*)(IDType, EventType, int, int, int, int, Font*, const string&, void*);
+void DefaultInputboxDrawCb(IDType, EventType, int x, int y, int w, int h, Font*, const string&, void*);
+EventType Inputbox(IDType id, int x, int y, int w, int h, Font* font, string& text, InputboxDrawCb draw_cb = DefaultInputboxDrawCb, void* param = nullptr);
+
 }; // namespace imgui
 
 #endif

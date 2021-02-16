@@ -56,7 +56,7 @@ void Font::Draw(SDL_Renderer* render, int x, int y, icolor color, scale s, const
 
     char buf[1024];
     VARARGS2BUF(buf, sizeof(buf)-1, format);
-    FC_DrawEffect(_font, render, x, y, effect, buf);
+    FC_DrawEffect(_font, render, x, y-GetSizeByText(buf).h/2, effect, buf);
 }
 
 void Font::DrawBox(SDL_Renderer* render, FontAlignment align, irect box, icolor color, scale s, const char* format, ...) {

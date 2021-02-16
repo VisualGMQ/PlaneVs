@@ -31,12 +31,6 @@ class App final{
      void Run();
      ~App();
  private:
-     SDL_Window* _window = nullptr;
-     SDL_Renderer* _render = nullptr;
-     icolor _clear_color = {120, 120, 120, 255};
-     const isize _window_size = WindowInitSize;
-     const isize _canva_size = CanvaSize;
-     SDL_Texture* _canva = nullptr; 
      SDL_Event _event;
 
      void initSystem();

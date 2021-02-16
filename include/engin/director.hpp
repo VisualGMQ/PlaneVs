@@ -3,6 +3,7 @@
 #include <vector>
 #include <map>
 
+#include "base/config.hpp"
 #include "engin/stage.hpp"
 #include "engin/input/input.hpp"
 
@@ -16,7 +17,7 @@ enum GameStatus {
 
 class Director final {
  public:
-    static void Init(SDL_Window* window, SDL_Renderer* render);
+    static void Init();
     static Director* GetInstance() {
         if (!director)
             Loge("static Director::GetInstance", "Director not init, please call Director::Init() first");
@@ -27,6 +28,9 @@ class Director final {
     void SetGameStatus(GameStatus status) { _status = status; }
     void Exit();
     void Update();
+    void SetRenderTargetToDefault();
+    void RenderClear(const icolor&);
+    void RenderPresent();
     void SetStage(Stage* stage);
     SDL_Window* GetWindow() { return _window; }
     SDL_Renderer* GetRender() { return _render; }
@@ -38,6 +42,7 @@ class Director final {
     Stage* _stage = nullptr;
     SDL_Window* _window = nullptr;
     SDL_Renderer* _render = nullptr;
+    SDL_Texture* _canva = nullptr;
 
     static Director* director;
 

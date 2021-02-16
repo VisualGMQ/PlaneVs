@@ -11,13 +11,14 @@ void quitSDL() {
 App::App(Stage* stage) {
     initSystem();
     Logi("App::App", "System inited");
-    Director::GetInstance()->SetStage(stage);
-    imgui::Init(_render);
+    auto director = Director::GetInstance();
+    director->SetStage(stage);
+    imgui::Init(director->GetRender());
     atexit(quitSDL);
 }
 
 void App::SetTitle(string title) {
-    SDL_SetWindowTitle(_window, title.c_str());
+    SDL_SetWindowTitle(Director::GetInstance()->GetWindow(), title.c_str());
 }
 
 void App::initSystem() {
@@ -33,36 +34,19 @@ void App::initSystem() {
     Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 4096);
     Logi("App::initSystem", "SDL expansions inited");
 
-    _window = SDL_CreateWindow(
-        "",
-        SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        _window_size.w, _window_size.h,
-        SDL_WINDOW_SHOWN|SDL_WINDOW_RESIZABLE|SDL_WINDOW_OPENGL);
-    Assertm(_window != nullptr, "App::initSystem", "window create failed");
-    _render = SDL_CreateRenderer(_window, -1, 0);
-    Assertm(_render != nullptr, "App::initSystem", "render create failed");
-    Director::Init(_window, _render);
-
-    SDL_SetRenderDrawBlendMode(_render, SDL_BLENDMODE_BLEND);
-
-    _canva = SDL_CreateTexture(_render, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, CanvaSize.w, CanvaSize.h);
-
+    Director::Init();
 }
 
 void App::Run() {
     Director* director = Director::GetInstance();
     while (!director->ShouldExit()) {
         const int tick = SDL_GetTicks();
-        SDL_SetRenderTarget(_render, _canva);
-        SDL_SetRenderDrawColor(_render, _clear_color.r, _clear_color.g, _clear_color.b, _clear_color.a);
-        SDL_RenderClear(_render);
+        director->RenderClear(CanvaBgColor);
         imgui::Prepare();
         eventHandle();
         director->Update();
-        SDL_SetRenderTarget(_render, nullptr);
-        SDL_RenderCopy(_render, _canva, nullptr, nullptr);
-        SDL_RenderPresent(_render);
         imgui::Finish();
+        director->RenderPresent();
         const int delay_time = round(1000.0/FPS);
         const int delta_tick= SDL_GetTicks() - tick;
         if (delta_tick <= delay_time) {
@@ -85,8 +69,6 @@ void App::eventHandle() {
 
 App::~App() {
     Logi("App::~App", "App cleanup");
-    Director::GetInstance()->Destroy();
-    Logi("App::~App", "Director destroyed");
     Font::DestroyAll();
     Logi("App::~App", "Font destroyed");
     TextureRepo::DestroyAll();
@@ -99,10 +81,11 @@ App::~App() {
     Logi("App::~App", "Bgm destroyed");
     Music::DestroyAll();
     Logi("App::~App", "Music destroyed");
-    SDL_DestroyTexture(_canva);
-    SDL_DestroyWindow(_window);
-    Logi("App::~App", "Window destroyed");
-    SDL_DestroyRenderer(_render);
-    Logi("App::~App", "Renderer destroyed");
+    Director::GetInstance()->Destroy();
+    Logi("App::~App", "Director destroyed");
+    Mix_Quit();
+    TTF_Quit();
+    IMG_Quit();
+    SDL_Quit();
     Logi("App::~App", "All system quit, App finished");
 }

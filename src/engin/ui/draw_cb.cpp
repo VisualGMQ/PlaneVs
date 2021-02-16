@@ -27,9 +27,7 @@ void imgui::DefaultButtonDrawCb(IDType id, EventType evt, string text, int x, in
     SDL_RenderFillRect(gRender, &rect);
     SDL_SetRenderDrawColor(gRender, board_color.r, board_color.g, board_color.b, board_color.a);
     SDL_RenderDrawRect(gRender, &rect);
-    isize size = gText->GetSize();
-    int offset_y = size.h>h?(size.h-h)/2:(h-size.h)/2;
-    gText->Draw(x+w/2, y+offset_y);
+    gText->Draw(x+w/2, y+h/2);
 }
 
 void imgui::DefaultScrollbarDrawCb(IDType id, imgui::ScrollbarDirection direction, EventType event, int x, int y, int len, int min, int max, int value, int button_len, void* param) {
@@ -94,4 +92,31 @@ void imgui::DefaultCheckboxDrawCb(IDType id, EventType event, int x, int y, int 
     }
     SDL_SetRenderDrawColor(gRender, boarder_color.r, boarder_color.g, boarder_color.b, boarder_color.a);
     SDL_RenderDrawRect(gRender, &rect);
+}
+
+void imgui::DefaultLabelDrawCb(IDType id, EventType evt, int x, int y, const icolor& color, Font* font, const string& text, void* param) {
+    if (!font) {
+        return;
+    }
+    isize size = font->GetSizeByText(text);
+    font->Draw(gRender, x+size.w/2, y+size.h/2, color, {1, 1}, text.c_str());
+}
+
+void imgui::DefaultInputboxDrawCb(IDType id, EventType event, int x, int y, int w, int h, Font* font, const string& text, void* param) {
+    if (!font)
+        return;
+    const SDL_Color bg_color = {200, 200, 200, 255};
+    const SDL_Color boarder_color = {0, 0, 0, 255};
+    const icolor font_color = {0, 0, 0, 255};
+    SDL_Rect rect = {x, y, w, h};
+    SDL_SetRenderDrawColor(gRender, bg_color.r, bg_color.g, bg_color.b, bg_color.a);
+    SDL_RenderFillRect(gRender, &rect);
+    isize font_size = font->GetSizeByText(text);
+    font->Draw(gRender, x+font_size.w/2+2, y+h/2, font_color, {1, 1}, text.c_str());
+    SDL_SetRenderDrawColor(gRender, boarder_color.r, boarder_color.g, boarder_color.b, boarder_color.a);
+    SDL_RenderDrawRect(gRender, &rect);
+    if (uistate.active_item == id) {
+        SDL_SetRenderDrawColor(gRender, 0, 0, 0, 255);
+        SDL_RenderDrawLine(gRender, x+5+font_size.w, y+5, x+5+font_size.w, y+h-5);
+    }
 }
