@@ -43,6 +43,7 @@ void WelcomeStage::Init() {
 
     Bgm::Load("test/test_resources/Mind Control.ogg");
     Bgm::Play(0);
+    Logi("WelcomeStage::WelcomeStage", "welcome stage inited");
 }
 
 void WelcomeStage::Step() {

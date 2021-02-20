@@ -1,3 +1,11 @@
+#ifdef _MSC_VER
+#pragma comment(lib, "SDL2.lib")
+#pragma comment(lib, "SDL2main.lib")
+#pragma comment(lib, "SDL2_image.lib")
+#pragma comment(lib, "SDL2_ttf.lib")
+#pragma comment(lib, "SDL2_mixer.lib")
+#endif
+
 #include "image_sheet/image_sheet.hpp"
 #include <iostream>
 using namespace std;

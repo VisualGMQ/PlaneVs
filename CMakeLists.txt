@@ -1,74 +1,60 @@
-cmake_minimum_required(VERSION 3.10)
-project(PlaneFight)
+cmake_minimum_required(VERSION 3.14...3.18)
+project(PlaneFight
+	VERSION 0.0.1
+	LANGUAGES CXX C)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
-set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -std=c11")
 
-set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -Og -Wall -g -ggdb")
-set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O2")
-
-if(${CMAKE_BUILD_TYPE} MATCHES "Debug")
+option(TOOL "compile tools" OFF)
+option(TEST "compile tests" OFF)
+if(CMAKE_BUILD_TYPE MATCHES Debug)
     set(TOOL ON)
     set(TEST ON)
+else()
+    set(TOOL OFF)
+    set(TEST OFF)
 endif()
 
-find_package(PkgConfig QUIET)
+# config externals
+include(FetchContent)
+include(${CMAKE_SOURCE_DIR}/cmake/GLM_Config.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/JsonCpp_Config.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/SDL2_Config.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/FontCache_Config.cmake)
 
-find_package(SDL2 QUIET)
-find_package(SDL2_image QUIET)
-find_package(SDL2_ttf QUIET)
-find_package(SDL2_mixer QUIET)
-find_package(JsonCpp QUIET)
+set(SDL_DEP_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS} ${SDL2_TTF_INCLUDE_DIRS} ${SDL2_MIXER_INCLUDE_DIRS} ${SDL_FONTCACHE_INCLUDE_DIRS})
+set(SDL_DEP_LIBDIR ${SDL2_LIBDIR} ${SDL2_IMAGE_LIBDIR} ${SDL2_MIXER_LIBDIR} ${SDL2_TTF_LIBDIR})
+set(SDL_DEP_LIBRARIES ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES} ${SDL2_MIXER_LIBRARIES} ${SDL2_TTF_LIBRARIES})
 
-# 如果没有找到SDL2和GLEW，则尝试通过pkg-config来查找
-if(NOT SDL2_FOUND)
-    message(WARNING "cmake can't find SDL2, use pkg-config")
-    pkg_check_modules(REQUIRED SDL2 )
-    pkg_search_module(SDL2 REQUIRED sdl2)
-endif()
+# compile every parts of engin
+aux_source_directory(src/base ENGIN_BASE_SRC)
+aux_source_directory(src/image_sheet ENGIN_BASE_SRC)
+aux_source_directory(external/SDL_FontCache ENGIN_BASE_SRC)
+add_library(GameEngin_base STATIC "")
+target_sources(GameEngin_base PRIVATE ${ENGIN_BASE_SRC})
+target_include_directories(GameEngin_base PUBLIC ${SDL_DEP_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/include)
+target_link_directories(GameEngin_base PUBLIC ${SDL_DEP_LIBDIR})
+target_link_libraries(GameEngin_base PUBLIC ${SDL_DEP_LIBRARIES} glm::glm jsoncpp_static)
+target_compile_features(GameEngin_base PUBLIC cxx_std_17 c_std_11)
 
-if(NOT SDL2_IMAGE_FOUND)
-    message(WARNING "cmake can't find SDL2_image, use pkg-config")
-    pkg_check_modules(REQUIRED SDL2_image )
-    pkg_search_module(SDL2_image REQUIRED sdl2_image)
-endif()
+aux_source_directory(src/engin ENGIN_ENGIN_SRC)
+aux_source_directory(src/engin/input ENGIN_ENGIN_SRC)
+aux_source_directory(src/engin/ui ENGIN_ENGIN_SRC)
+add_library(GameEngin_engin STATIC "")
+target_sources(GameEngin_engin PRIVATE ${ENGIN_ENGIN_SRC})
+target_link_libraries(GameEngin_engin PUBLIC GameEngin_base)
 
-if(NOT SDL2_TTF_FOUND)
-    message(WARNING "cmake can't find SDL2_ttf, use pkg-config")
-    pkg_check_modules(REQUIRED SDL2_ttf)
-    pkg_search_module(SDL2_ttf REQUIRED sdl2_ttf)
-endif()
 
-if(NOT SDL2_MIXER_FOUND)
-    message(WARNING "cmake can't find SDL2_mixer, use pkg-config")
-    pkg_check_modules(REQUIRED SDL2_mixer)
-    pkg_search_module(SDL2_mixer REQUIRED sdl2_mixer)
-endif()
-
-if(NOT JsonCpp_FOUND)
-    message(WARNING "cmake can't find jsoncpp, use pkg-config")
-    pkg_check_modules(REQUIRED JsonCpp)
-    pkg_search_module(JSONCPP REQUIRED jsoncpp)
-endif()
-
-include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_mixer_INCLUDE_DIRS} ${SDL2_image_INCLUDE_DIRS} ${SDL2_ttf_INCLUDE_DIRS} ${JSONCPP_INCLUDE_DIRS} ./external)
-link_directories(${SDL2_LIBRARY_DIRS} ${SDL2_mixer_LIBRARY_DIRS} ${SDL2_image_LIBRARY_DIRS} ${SDL2_ttf_LIBRARY_DIRS} ${JSONCPP_LIBRARY_DIRS})
-link_libraries(${SDL2_LIBRARIES} ${SDL2_mixer_LIBRARIES} ${SDL2_image_LIBRARIES} ${SDL2_ttf_LIBRARIES} ${JSONCPP_LIBRARIES})
-
-aux_source_directory(src/base SRC)
-aux_source_directory(src/engin SRC)
-aux_source_directory(src/engin/input SRC)
-aux_source_directory(src/engin/ui SRC)
-aux_source_directory(src/game SRC)
-aux_source_directory(src/game/controller SRC)
-aux_source_directory(src/image_sheet SRC)
-aux_source_directory(external SRC)
+# compile game
+aux_source_directory(src/game GAME_SRC)
+aux_source_directory(src/game/controller GAME_SRC)
 
 set(GAME_EXE_NAME ${CMAKE_PROJECT_NAME})
-add_executable(${GAME_EXE_NAME} ${SRC} src/main.cpp)
-
-target_include_directories(${GAME_EXE_NAME} PRIVATE ./include)
+add_executable(${GAME_EXE_NAME} "")
+target_sources(${GAME_EXE_NAME}
+		PUBLIC ${GAME_SRC}
+		PRIVATE ${CMAKE_SOURCE_DIR}/src/main.cpp)
+target_link_libraries(${GAME_EXE_NAME} PUBLIC GameEngin_engin)
 
 file(COPY resources DESTINATION ${PROJECT_BINARY_DIR})
 
@@ -80,7 +66,7 @@ macro(MADD_TEST test_name)
 endmacro()
 
 # Enable Compile Tests for PlaneVS
-if(DEFINED TEST)
+if(TEST)
     add_subdirectory(test)
     enable_testing()
     MADD_TEST(SpriteReader_Work)
@@ -96,6 +82,6 @@ if(DEFINED TEST)
     MADD_TEST(UI_Work)
 endif()
 
-if (DEFINED TOOL)
+if(TOOL)
     add_subdirectory(tool)
 endif()

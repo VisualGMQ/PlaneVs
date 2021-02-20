@@ -18,6 +18,7 @@ void Director::Init() {
     Assertm(director->_canva, "Director::Init", "canva create failed");
     SDL_SetRenderTarget(director->GetRender(), director->_canva);
     SDL_SetRenderDrawBlendMode(director->GetRender(), SDL_BLENDMODE_BLEND);
+    Logi("Director::Init", "director init Ok");
 }
 
 void Director::Update() {
@@ -33,6 +34,7 @@ void Director::SetStage(Stage* stage) {
     _stage = stage;
     if (_stage) {
         _stage->Init();
+        Logi("Director::SetStage", "stage Inited");
     } else {
         Loge("Director::SetStage", "Director::SetStage stage is nullptr");
     }

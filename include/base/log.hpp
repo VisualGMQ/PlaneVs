@@ -3,6 +3,7 @@
 #include <string>
 #include <cassert>
 #include <cstdio>
+#include <cstdarg>
 
 using std::string;
 using std::vprintf;

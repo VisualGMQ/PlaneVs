@@ -1,0 +1,5 @@
+if(NOT GLM_FOUND)
+    message(WARNING "cmake can't find glm, use pkg-config")
+    pkg_check_modules(REQUIRED JsonCpp)
+    pkg_search_module(JSONCPP REQUIRED jsoncpp)
+endif()

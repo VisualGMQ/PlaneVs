@@ -13,7 +13,9 @@ App::App(Stage* stage) {
     Logi("App::App", "System inited");
     auto director = Director::GetInstance();
     director->SetStage(stage);
+    Logi("App::App", "first stage set");
     imgui::Init(director->GetRender());
+    Logi("App::App", "imgui inited");
     atexit(quitSDL);
 }
 
@@ -39,6 +41,7 @@ void App::initSystem() {
 
 void App::Run() {
     Director* director = Director::GetInstance();
+    Logi("App::Run", "app will run");
     while (!director->ShouldExit()) {
         const int tick = SDL_GetTicks();
         director->RenderClear(CanvaBgColor);
@@ -83,9 +86,5 @@ App::~App() {
     Logi("App::~App", "Music destroyed");
     Director::GetInstance()->Destroy();
     Logi("App::~App", "Director destroyed");
-    Mix_Quit();
-    TTF_Quit();
-    IMG_Quit();
-    SDL_Quit();
     Logi("App::~App", "All system quit, App finished");
 }

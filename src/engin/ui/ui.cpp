@@ -3,13 +3,16 @@
 SDL_Renderer* imgui::gRender = nullptr;
 Text* imgui::gText = nullptr;
 SDL_Texture* imgui::gCanva = nullptr;
-imgui::UIState imgui::uistate = {ID_NONE, ID_NONE, ID_NONE, ID_NONE, glm::ivec2(0, 0), imgui::BUTTON_RELEASING, BUTTON_RELEASING, BUTTON_RELEASING, 0, ID_NONE, SDLK_UNKNOWN, KMOD_NONE, "", false};
+imgui::UIState imgui::uistate = {imgui::ID_NONE, imgui::ID_NONE, imgui::ID_NONE, imgui::ID_NONE, glm::ivec2(0, 0), imgui::BUTTON_RELEASING, imgui::BUTTON_RELEASING, imgui::BUTTON_RELEASING, 0, imgui::ID_NONE, SDLK_UNKNOWN, KMOD_NONE, "", false};
 
 void imgui::Init(SDL_Renderer* renderer) {
     gRender = renderer;
     Font* font = Font::Create(gRender, "test_resources/SimHei.ttf", 25, FONT_STYLE_NORMAL);
+    Logi("imgui::Init", "font created");
     gText = Text::Create(font, "", {255, 255, 255, 255});
+    Logi("imgui::Init", "gText created");
     gCanva = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, CanvaSize.w, CanvaSize.h);
+    Logi("imgui::Init", "gCanva created");
 }
 
 void imgui::EventHandle(SDL_Event& event) {

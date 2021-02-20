@@ -1,3 +1,10 @@
+#ifdef _MSC_VER
+#pragma comment(lib, "SDL2.lib")
+#pragma comment(lib, "SDL2main.lib")
+#pragma comment(lib, "SDL2_image.lib")
+#pragma comment(lib, "SDL2_ttf.lib")
+#endif
+
 #include <iostream>
 #include <string>
 #include <map>
@@ -125,9 +132,9 @@ void ProcessImage(string filename, string output, int row, int col, int padding)
     SDL_SetSurfaceBlendMode(save_surface, SDL_BLENDMODE_BLEND);
 
     fs::path file_path = filename;
-    filename = file_path.filename();
+    filename = file_path.filename().string();
     filename = filename.substr(0, filename.rfind('.'));
-    string extension = file_path.extension();
+    string extension = file_path.extension().string();
 
     for (int i = 0; i < col; i++) {
         for (int j = 0; j < row; j++) {

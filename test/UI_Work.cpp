@@ -32,9 +32,9 @@ class UI_Work: public Stage {
         imgui::Label(ID_LABEL1, 250, 300, {0, 0, 0, 255}, _font, std::to_string(_scroll_value));
         imgui::Checkbox(ID_CHECKBOX, 200, 200, 50, _is_checked);
         if (_is_checked) {
-            imgui::Label(ID_LABEL2, 260, 200, {200, 0, 0, 255}, _font, "按下了");
+	    imgui::Label(ID_LABEL2, 260, 200, {200, 0, 0, 255}, _font, "pressed");
         } else {
-            imgui::Label(ID_LABEL2, 260, 200, {0, 200, 0, 255}, _font, "没按下");
+            imgui::Label(ID_LABEL2, 260, 200, {0, 200, 0, 255}, _font, "not pressed");
         }
         imgui::Inputbox(ID_INPUTBOX1, 400, 400, 200, 50, _font, _str1);
         imgui::Inputbox(ID_INPUTBOX2, 400, 600, 200, 50, _font, _str2);

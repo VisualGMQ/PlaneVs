@@ -1,0 +1,5 @@
+if(NOT JsonCpp_FOUND)
+    message(WARNING "cmake can't find jsoncpp, use pkg-config")
+    pkg_check_modules(REQUIRED JsonCpp)
+    pkg_search_module(JSONCPP REQUIRED jsoncpp)
+endif()

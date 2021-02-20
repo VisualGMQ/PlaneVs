@@ -2,6 +2,7 @@
 #define TOOLS_HPP
 #include <string>
 #include <filesystem>
+#include <cstdarg>
 using std::string;
 namespace fs = std::filesystem;
 

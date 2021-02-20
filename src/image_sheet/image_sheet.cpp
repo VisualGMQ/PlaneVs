@@ -43,7 +43,7 @@ ImageSheet::ImageSheet(fs::path json_filename) {
     } else {
         _img_filename = json_filename.string();
         _img_filename.replace(_img_filename.rfind(".")+1, 4, "png");
-        _images = readSpriteSheet(json_filename);
+        _images = readSpriteSheet(json_filename.string());
         valid();
     }
 }

@@ -7,6 +7,7 @@
 
 #include "base/tools.hpp"
 #include "base/geo_math.hpp"
+#include "base/log.hpp"
 using std::string;
 using std::vector;
 
