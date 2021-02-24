@@ -1,9 +1,13 @@
+enable_testing()
 
 macro(declare_test TEST_EXE TEST_CPP)
     add_executable(${TEST_EXE} "")
     target_link_libraries(${TEST_EXE} PUBLIC GameEngin_engin)
     target_sources(${TEST_EXE} PRIVATE ${TEST_CPP})
     target_compile_features(${TEST_EXE} PUBLIC cxx_std_17 c_std_11)
+    add_test(NAME ${TEST_EXE}
+        COMMAND $<TARGET_FILE:${TEST_EXE}>
+             WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 endmacro()
 
 file(COPY ./test_resources DESTINATION ${CMAKE_BINARY_DIR})
@@ -17,5 +21,4 @@ declare_test(Texture_Work ./Texture_Work.cpp)
 declare_test(Music_Work ./Music_Work.cpp)
 declare_test(MusicRepo_Work ./MusicRepo_Work.cpp)
 declare_test(Text_Work ./Text_Work.cpp)
-declare_test(Font_Work ./Font_Work.cpp)
 declare_test(UI_Work ./UI_Work.cpp)

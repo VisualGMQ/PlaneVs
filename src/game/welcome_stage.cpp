@@ -31,15 +31,7 @@ void WelcomeStage::Init() {
     sprite = _cache->CreateSprite("player_bullet");
     _plane->AddCharger(new Charger(sprite, prop, 10));
 
-    _controller = new Controller;
-    _controller->TrunOn();
-    _controller->SetUpCommand(new KeyboardCommand_Up(SDLK_w));
-    _controller->SetDownCommand(new KeyboardCommand_Down(SDLK_s));
-    _controller->SetLeftCommand(new KeyboardCommand_Left(SDLK_a));
-    _controller->SetRightCommand(new KeyboardCommand_Right(SDLK_d));
-    _controller->SetFireCommand(new KeyboardCommand_Fire(SDLK_j));
-    _controller->SetBombCommand(new KeyboardCommand_Bomb(SDLK_k));
-    _controller->SetBlastCommand(new KeyboardCommand_Blast(SDLK_o));
+    _controller = PlaneKeyboardController::CreateController(_plane, SDLK_w, SDLK_s, SDLK_a, SDLK_d, SDLK_j, SDLK_k, SDLK_l);
 
     Bgm::Load("test/test_resources/Mind Control.ogg");
     Bgm::Play(0);
@@ -47,7 +39,7 @@ void WelcomeStage::Init() {
 }
 
 void WelcomeStage::Step() {
-    _controller->Control(_plane);
+    _controller->Control();
     _enemy->Update();
     _plane->Update();
     _enemy->Draw();
@@ -55,7 +47,6 @@ void WelcomeStage::Step() {
 }
 
 void WelcomeStage::Destroy() {
-    delete _controller;
     delete _enemy;
     delete _plane;
     Logi("WelcomStage::Destroy", "WelcomeStage Destoryed");

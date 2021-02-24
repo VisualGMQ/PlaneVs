@@ -1,38 +1,27 @@
 #ifndef CONTROLLER_HPP
 #define CONTROLLER_HPP
-#include <SDL.h>
 
-#include "game/controller/controller_command.hpp"
-
-class Controller final {
+class Controller {
  public:
     bool IsWorking() const { return _is_working; }
     void TrunOn() { _is_working = true; }
     void TrunOff() { _is_working = false; }
 
-    void SetUpCommand(ControllerCommand* cmd);
-    void SetDownCommand(ControllerCommand* cmd);
-    void SetLeftCommand(ControllerCommand* cmd);
-    void SetRightCommand(ControllerCommand* cmd);
-    void SetFireCommand(ControllerCommand* cmd);
-    void SetBombCommand(ControllerCommand* cmd);
-    void SetBlastCommand(ControllerCommand* cmd);
+    void Control();
 
-    void Control(Plane* plane);
+    virtual ~Controller() = default;
 
-    ~Controller();
+ protected:
+    virtual void Up() = 0;
+    virtual void Down() = 0;
+    virtual void Left() = 0;
+    virtual void Right() = 0;
+    virtual void Fire() = 0;
+    virtual void Bomb() = 0;
+    virtual void Blast() = 0;
 
  private:
-    ControllerCommand* _on_up = nullptr;
-    ControllerCommand* _on_down = nullptr;
-    ControllerCommand* _on_left = nullptr;
-    ControllerCommand* _on_right = nullptr;
-    ControllerCommand* _on_fire = nullptr;
-    ControllerCommand* _on_bomb = nullptr;
-    ControllerCommand* _on_blast = nullptr;
     bool _is_working = false;
-
-    void destroyCommand(ControllerCommand* cmd);
 };
 
 #endif

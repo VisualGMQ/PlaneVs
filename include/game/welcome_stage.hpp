@@ -13,7 +13,7 @@
 #include "game/charger.hpp"
 #include "game/plane.hpp"
 #include "game/controller/controller.hpp"
-#include "game/controller/keyboard_controller.hpp"
+#include "game/controller/plane/plane_keyboard_controller.hpp"
 using glm::mat4;
 using std::to_string;
 
