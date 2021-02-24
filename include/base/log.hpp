@@ -5,6 +5,8 @@
 #include <cstdio>
 #include <cstdarg>
 
+#include "base/tools.hpp"
+
 using std::string;
 using std::vprintf;
 

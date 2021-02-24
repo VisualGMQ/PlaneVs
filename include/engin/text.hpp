@@ -29,13 +29,16 @@ class Text final: public Destroyable {
     string GetText() const;
     void Draw(int x, int y);
     void Destroy() override;
-    virtual ~Text() = default;
+    virtual ~Text();
 
  private:
     string _text;
     Font* _font = nullptr;
+    Texture* _texture = nullptr;
     icolor _color;
-    isize _size;
+    bool _should_gen_texture = false;
+
+    void regenerateTexture();
 
     Text(Font* font, string text, icolor color);
 

@@ -11,6 +11,11 @@ enum MouseButtonStatue {
     MOUSE_BUTTON_PRESS
 };
 
+enum MouseButton {
+    MOUSE_BUTTON_LEFT = SDL_BUTTON_LEFT,
+    MOUSE_BUTTON_RIGHT = SDL_BUTTON_RIGHT
+};
+
 class Mouse final: public Device {
  public:
     static Mouse* GetInstance();
@@ -18,7 +23,7 @@ class Mouse final: public Device {
     void ReceiveEvent(SDL_Event& event) override;
     ivec2 GetPosition() const { return _position; }
     ivec2 GetMotion() const { return _motion; }
-    MouseButtonStatue GetButtonStatue(Uint8 button);
+    MouseButtonStatue GetButtonStatue(MouseButton button);
 
  private:
     MouseButtonStatue _lbutton_status = MOUSE_BUTTON_RELEASE;

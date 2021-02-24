@@ -14,16 +14,22 @@ Text::Text(Font* font, string text, icolor color) {
 }
 
 isize Text::GetSize() {
-    if (_font) {
-        return _font->GetSizeByText(_text);
+    if (_should_gen_texture) {
+        regenerateTexture();
+        _should_gen_texture = false;
     }
+    if (_texture)
+        return _texture->GetSize();
     return {0, 0};
 }
 
 void Text::SetText(const char* format, ...) {
-    char buf[1024] = {0};
-    VARARGS2BUF(buf, sizeof(buf)-1, format);
-    _text = buf;
+    if (strcmp(format, _text.c_str()) != 0) {
+        char buf[1024] = {0};
+        VARARGS2BUF(buf, sizeof(buf)-1, format);
+        _text = buf;
+        _should_gen_texture = true;
+    }
 }
 
 string Text::GetText() const {
@@ -31,16 +37,41 @@ string Text::GetText() const {
 }
 
 void Text::SetColor(int r, int g, int b, int a) {
-    _color.r = r;
-    _color.g = g;
-    _color.b = b;
-    _color.a = a;
+    if (_color.r != r || _color.g != g || _color.b != b || _color.a != a) {
+        _color.r = r;
+        _color.g = g;
+        _color.b = b;
+        _color.a = a;
+        _should_gen_texture = true;
+    }
 }
 
 void Text::Draw(int x, int y) {
-    if (_font) {
-        _font->Draw(Director::GetInstance()->GetRender(), x, y, _color, {1, 1}, _text.c_str());
+    auto render = Director::GetInstance()->GetRender();
+    if (_should_gen_texture || !_texture) {
+        regenerateTexture();
+        if (_should_gen_texture) {
+            _should_gen_texture = false;
+        }
     }
+    irect dst_rect;
+    isize size = GetSize();
+    dst_rect.w = size.w;
+    dst_rect.h = size.h;
+    dst_rect.x = x-size.w/2;
+    dst_rect.y = y-size.h/2;
+    _texture->Draw(render, nullptr, &dst_rect, &_color);
+}
+
+void Text::regenerateTexture() {
+    if (!_texture) {
+        delete _texture;
+    }
+    _texture = _font->BlendSurface(Director::GetInstance()->GetRender(), _color, _text.c_str());
+}
+
+Text::~Text() {
+    delete _texture;
 }
 
 void Text::Destroy() {

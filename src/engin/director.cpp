@@ -71,10 +71,13 @@ bool Director::ShouldExit() const {
     return _stage->ShouldExit();
 }
 
-void Director::Destroy() {
+void Director::StageDestroy() {
     if (_stage) {
         _stage->Destroy();
     }
+}
+
+void Director::Destroy() {
     SDL_DestroyTexture(_canva);
     SDL_DestroyWindow(_window);
     SDL_DestroyRenderer(_render);

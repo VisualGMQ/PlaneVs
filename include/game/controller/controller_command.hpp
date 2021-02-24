@@ -4,7 +4,7 @@
 
 class ControllerCommand {
  public:
-    virtual void Execute(Plane* plane) = 0;
+    virtual void Execute() = 0;
     virtual ~ControllerCommand() = default;
 };
 

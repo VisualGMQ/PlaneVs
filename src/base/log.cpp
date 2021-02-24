@@ -6,9 +6,8 @@ void SetLogLevel(LogLevel level) {
     log_level = level; 
 }
 
-#define LogDeclare(funcname, level, level_msg) \
-void funcname(const char* func_name, const char* format, ...) { \
-    if (log_level >= level) { \
+#define LOG_PRINT(level, level_msg, func_name, start_arg) \
+    if (level <= log_level) { \
         va_list ls; \
         va_start(ls, format); \
         printf("[%s]{%s}: ", level_msg, func_name); \
@@ -17,13 +16,26 @@ void funcname(const char* func_name, const char* format, ...) { \
         fflush(stdout); \
         va_end(ls); \
     } \
+
+void Logi(const char* func_name, const char* format, ...) {
+    LOG_PRINT(LOG_INFO, "INFO", func_name, format);
 }
 
-LogDeclare(Logi, LOG_INFO, "INFO")
-LogDeclare(Logw, LOG_WARN, "WARN")
-LogDeclare(Logd, LOG_DEBUG, "DEBUG")
-LogDeclare(Loge, LOG_ERROR, "ERROR")
-LogDeclare(Logt, LOG_TRACE, "TRACE")
+void Logw(const char* func_name, const char* format, ...) {
+    LOG_PRINT(LOG_WARN, "WARN", func_name, format);
+}
+
+void Logd(const char* func_name, const char* format, ...) {
+    LOG_PRINT(LOG_DEBUG, "DEBUG", func_name, format);
+}
+
+void Loge(const char* func_name, const char* format, ...) {
+    LOG_PRINT(LOG_ERROR, "ERROR", func_name, format);
+}
+
+void Logt(const char* func_name, const char* format, ...) {
+    LOG_PRINT(LOG_TRACE, "TRACE", func_name, format);
+}
 
 #undef LogDeclare
 

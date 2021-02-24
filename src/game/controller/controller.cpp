@@ -37,39 +37,21 @@ void Controller::SetBlastCommand(ControllerCommand* cmd) {
 
 #undef SetXXCommandImplement
 
-void Controller::destroyCommand(ControllerCommand* cmd) {
-    delete cmd;
-}
-
-void Controller::Control(Plane* plane) {
+void Controller::Control() {
     if (!IsWorking())
         return;
     if (_on_up)
-        _on_up->Execute(plane);
+        _on_up->Execute();
     if (_on_down)
-        _on_down->Execute(plane);
+        _on_down->Execute();
     if (_on_left)
-        _on_left->Execute(plane);
+        _on_left->Execute();
     if (_on_right)
-        _on_right->Execute(plane);
+        _on_right->Execute();
     if (_on_fire)
-        _on_fire->Execute(plane);
+        _on_fire->Execute();
     if (_on_bomb)
-        _on_bomb->Execute(plane);
+        _on_bomb->Execute();
     if (_on_blast)
-        _on_blast->Execute(plane);
+        _on_blast->Execute();
 }
-
-#define DeleteControllerCommand(cmd) if (cmd) destroyCommand(cmd);
-        
-Controller::~Controller() {
-    DeleteControllerCommand(_on_up)
-    DeleteControllerCommand(_on_down)
-    DeleteControllerCommand(_on_left)
-    DeleteControllerCommand(_on_right)
-    DeleteControllerCommand(_on_fire)
-    DeleteControllerCommand(_on_bomb)
-    DeleteControllerCommand(_on_blast)
-}
-
-#undef DeleteControllerCommand

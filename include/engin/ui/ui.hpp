@@ -2,6 +2,7 @@
 #define UI_HPP
 #include <vector>
 #include <string>
+#include <filesystem>
 
 #include <SDL.h>
 #include <glm/glm.hpp>
@@ -9,25 +10,20 @@
 #include "base/geo_math.hpp"
 #include "engin/text.hpp"
 using std::string;
+namespace fs = std::filesystem;
 
 namespace imgui {
 
 using IDType = unsigned int;
-
-enum {
-    ID_NONE = 0
-};
+constexpr IDType ID_NONE = 0;
 
 extern SDL_Renderer* gRender;
-extern Text* gText;
 extern SDL_Texture* gCanva;
-
 /*
  * @brief a macro to generate random id
- * @warn don't use this twice in one line, because it used `__LINE__`
+ * @warn don't use this twice in one line, because it used `__LINE__` to generate id
  */
-// FIXME error ocurred
-// #define GenID() (int)(__LINE__)
+#define ID_ANY (*(int*)(__FILE__)+__LINE__)
 
 enum ButtonState {
     BUTTON_PRESSED,
@@ -77,6 +73,11 @@ enum EventType {
 
     // checkbox events
     EVENT_CHECKBOX_ALTER,   // pressed checkbox and alternated state
+
+    // filedialog events
+    FILEDIALOG_OPEN,
+    FILEDIALOG_SAVE,
+    FILEDIALOG_CANCEL,
 };
 
 void EventHandle(SDL_Event& event);
@@ -90,11 +91,11 @@ void Quit();
 // x, y, is left-top point of widgets
 
 // Button
-using ButtonDrawCb = void(*)(IDType id, EventType, string, int, int, int, int, void*);
+using ButtonDrawCb = void(*)(IDType id, EventType, Text*, int, int, int, int, void*);
 
-void DefaultButtonDrawCb(IDType id, EventType evt, string text, int x, int y, int w, int h, void* param);
+void DefaultButtonDrawCb(IDType id, EventType evt, Text* text, int x, int y, int w, int h, void* param);
 
-EventType Button(IDType id, string text, int x, int y, int w, int h, ButtonDrawCb draw_cb = DefaultButtonDrawCb, void* param = nullptr);
+EventType Button(IDType id, Text*, int x, int y, int w, int h, ButtonDrawCb draw_cb = DefaultButtonDrawCb, void* param = nullptr);
 
 enum ScrollbarDirection {
     SCROLLBAR_VERTICAL,
@@ -114,14 +115,24 @@ void DefaultCheckboxDrawCb(IDType id, EventType, int x, int y, int boarder_len, 
 EventType Checkbox(IDType id, int x, int y, int boarder_len, bool& is_checked, CheckboxDrawCb draw_cb = DefaultCheckboxDrawCb, void* param = nullptr);
 
 // Label
-using LabelDrawCb = void(*)(IDType, EventType, int, int, const icolor&, Font*, const string&, void*);
-void DefaultLabelDrawCb(IDType, EventType, int x, int y, const icolor&, Font*, const string&, void*);
-EventType Label(IDType id, int x, int y, const icolor& color, Font* font, const string& text, LabelDrawCb draw_cb = DefaultLabelDrawCb, void* param = nullptr);
+using LabelDrawCb = void(*)(IDType, EventType, int, int, Text*, void*);
+void DefaultLabelDrawCb(IDType, EventType, int x, int y, Text*, void*);
+EventType Label(IDType id, int x, int y, Text*, LabelDrawCb draw_cb = DefaultLabelDrawCb, void* param = nullptr);
 
 // InputBox
-using InputboxDrawCb = void(*)(IDType, EventType, int, int, int, int, Font*, const string&, void*);
-void DefaultInputboxDrawCb(IDType, EventType, int x, int y, int w, int h, Font*, const string&, void*);
-EventType Inputbox(IDType id, int x, int y, int w, int h, Font* font, string& text, InputboxDrawCb draw_cb = DefaultInputboxDrawCb, void* param = nullptr);
+using InputboxDrawCb = void(*)(IDType, EventType, int, int, int, int, Text*, void*);
+void DefaultInputboxDrawCb(IDType, EventType, int x, int y, int w, int h, Text*, void*);
+EventType Inputbox(IDType id, int x, int y, int w, int h, Text* text, InputboxDrawCb draw_cb = DefaultInputboxDrawCb, void* param = nullptr);
+
+// FileDialog
+
+enum FileDialogType {
+    FILEDIALOG_TYPE_OPEN,
+    FILEDIALOG_TYPE_SAVE
+};
+
+// filedialog is a singlton, it don't have id
+EventType FileDialog(string title, fs::path&, FileDialogType type, Font*);
 
 }; // namespace imgui
 

@@ -29,10 +29,10 @@ void Mouse::ReceiveEvent(SDL_Event& event) {
     }
 }
 
-MouseButtonStatue Mouse::GetButtonStatue(Uint8 button) {
-    if (button == SDL_BUTTON_LEFT)
+MouseButtonStatue Mouse::GetButtonStatue(MouseButton button) {
+    if (button == MOUSE_BUTTON_LEFT)
         return _lbutton_status;
-    if (button == SDL_BUTTON_RIGHT)
+    if (button == MOUSE_BUTTON_RIGHT)
         return _rbutton_status;
     return MOUSE_BUTTON_RELEASE;
 }

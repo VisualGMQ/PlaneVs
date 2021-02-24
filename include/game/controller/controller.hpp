@@ -4,7 +4,7 @@
 
 #include "game/controller/controller_command.hpp"
 
-class Controller final {
+class Controller {
  public:
     bool IsWorking() const { return _is_working; }
     void TrunOn() { _is_working = true; }
@@ -18,9 +18,9 @@ class Controller final {
     void SetBombCommand(ControllerCommand* cmd);
     void SetBlastCommand(ControllerCommand* cmd);
 
-    void Control(Plane* plane);
+    void Control();
 
-    ~Controller();
+    virtual ~Controller() = default;
 
  private:
     ControllerCommand* _on_up = nullptr;

@@ -43,7 +43,7 @@ const State UpdateState(IDType id, int x, int y, int w, int h) {
     return state;
 }
 
-EventType imgui::Button(IDType id, string text, int x, int y, int w, int h, imgui::ButtonDrawCb draw_cb, void* param) {
+EventType imgui::Button(IDType id, Text* text, int x, int y, int w, int h, imgui::ButtonDrawCb draw_cb, void* param) {
     EventType evt = imgui::EVENT_NONE;
     const State state = UpdateState(id, x, y, w, h);
     if (state == HOVE_ON_WIDGETS || state == DRAG_IN_WIDGETS) {
@@ -111,23 +111,23 @@ EventType imgui::Checkbox(IDType id, int x, int y, int boarder_len, bool& is_che
     return evt;
 }
 
-EventType imgui::Label(IDType id, int x, int y, const icolor& color, Font* font, const string& text, LabelDrawCb draw_cb, void* param) {
+EventType imgui::Label(IDType id, int x, int y, Text* text, LabelDrawCb draw_cb, void* param) {
     EventType evt = EVENT_NONE;
-    if (!font) {
+    if (!text) {
         return evt;
     }
-    isize size = font->GetSizeByText(text);
+    isize size = text->GetSize();
     const State state = UpdateState(id, x, y, size.w, size.h);
     if (state == State::HOVE_ON_WIDGETS) {
         evt = EVENT_HOVER;
     }
     if (draw_cb) {
-        draw_cb(id, evt, x, y, color, font, text, param);
+        draw_cb(id, evt, x, y, text, param);
     }
     return evt;
 }
 
-EventType imgui::Inputbox(IDType id, int x, int y, int w, int h, Font* font, string& text, InputboxDrawCb draw_cb, void* param) {
+EventType imgui::Inputbox(IDType id, int x, int y, int w, int h, Text* text, InputboxDrawCb draw_cb, void* param) {
     const State state = UpdateState(id, x, y, w, h);
     EventType evt = EVENT_NONE;
     if (state == State::HOVE_ON_WIDGETS) {
@@ -140,14 +140,180 @@ EventType imgui::Inputbox(IDType id, int x, int y, int w, int h, Font* font, str
     }
     if (uistate.active_item == id) {
         if (uistate.inputted) {
-            text += uistate.input_text;
+            // FIXM is this will cause memory leak?
+            text->SetText((text->GetText()+uistate.input_text).c_str());
         }
-        if (uistate.keycode == SDLK_BACKSPACE && !text.empty()) {
-            text.pop_back();
+        if (uistate.keycode == SDLK_BACKSPACE && !text->GetText().empty()) {
+            string new_text = text->GetText();
+            new_text.pop_back();
+            text->SetText(new_text.c_str());
         }
     }
     if (draw_cb) {
-        draw_cb(id, evt, x, y, w, h, font, text, param);
+        draw_cb(id, evt, x, y, w, h, text, param);
     }
     return evt;
+}
+
+// a small metaprogram to calculate areas of filedialog in compile time
+template <int offset_x, int offset_y, int Width, int Height, int padding_w, int padding_h, int pt>
+struct CalculateDialogRects {
+    static constexpr irect title_area = {offset_x+padding_w, offset_y+padding_h, Width-2*padding_w, pt+2};
+    static constexpr irect saveload_area = {offset_x+Width-padding_w-100, offset_y+Height-padding_h-pt-20, 100, pt+10};
+    static constexpr irect cancel_area = {offset_x+padding_w, saveload_area.y, 100, pt+10};
+    static constexpr irect path_area = {offset_x+padding_w, saveload_area.y-padding_h-pt-2, Width-padding_w*2, pt+2};
+    static constexpr irect input_area = {offset_x+padding_w, path_area.y-padding_h-pt-2, Width-padding_w*2, pt+2};
+    static constexpr irect main_area = {offset_x+padding_w, title_area.y+title_area.h+padding_h, Width-padding_w*2, input_area.y-title_area.y-title_area.h-padding_h*2};
+};
+
+constexpr int DialogWidth = 800;
+constexpr int DialogHeight = 600;
+constexpr int DialogOffsetX = (CanvaSize.w-DialogWidth)/2;
+constexpr int DialogOffsetY = (CanvaSize.h-DialogHeight)/2;
+constexpr int pt = 20;
+
+using DialogRects = CalculateDialogRects<DialogOffsetX, DialogOffsetY, DialogWidth, DialogHeight, 10, 10, pt>;
+constexpr irect title_area = DialogRects::title_area;
+constexpr irect saveload_area = DialogRects::saveload_area;
+constexpr irect cancel_area = DialogRects::cancel_area;
+constexpr irect path_area = DialogRects::path_area;
+constexpr irect input_area = DialogRects::input_area;
+constexpr irect main_area = DialogRects::main_area;
+
+constexpr icolor text_color = {255, 255, 255, 255};
+
+void __filedialog_draw_file_item(const string& name, Text* text, const icolor& color, const SDL_Rect& rect, const int padding, int button_len) {
+    SDL_SetRenderDrawColor(imgui::gRender, color.r, color.g, color.b, 255);
+    SDL_RenderFillRect(imgui::gRender, &rect);
+    text->Draw(rect.x+text->GetSize().w/2, text->GetSize().h/2+rect.y);
+}
+
+Text* __query_text(vector<Text*>& texts, int idx, Font* font, string str) {
+    if (idx >= texts.size()) {
+        texts.push_back(nullptr);
+    }
+    if (texts.at(idx) == nullptr) {
+        texts[idx] = Text::Create(font, str, text_color);
+    } else {
+        texts.at(idx)->SetText(str.c_str());
+    }
+    return texts.at(idx);
+}
+
+EventType imgui::FileDialog(string title, fs::path& p, imgui::FileDialogType type, Font* font) {
+    static Text* path_text = Text::Create(font, p.string(), text_color),
+                *cancel_text = Text::Create(font, "cancel", text_color),
+                *save_load_text = Text::Create(font, type==FILEDIALOG_TYPE_OPEN?"open":"save", text_color),
+                *title_text = Text::Create(font, title, text_color),
+                *input_text = Text::Create(font, "", text_color);
+    static vector<Text*> file_texts(20, nullptr);
+    static int scrollbar_value = 0;
+
+    if (!fs::exists(p) || !fs::is_directory(p)) {
+        Logw("imgui::FileDialog", "path `%s` is invalid", p.string().c_str());
+        p = fs::current_path();
+    }
+
+    // update dialog state, the id is ID_ANY due to it is singlton, we don't care it's ID
+    UpdateState(ID_ANY, DialogOffsetX, DialogOffsetY, DialogWidth, DialogHeight);
+
+    SDL_SetRenderDrawColor(gRender, 0, 0, 0, 150);
+    SDL_Rect outline_rect = {(CanvaSize.w-DialogWidth)/2, (CanvaSize.h-DialogHeight)/2, DialogWidth, DialogHeight};
+    SDL_RenderFillRect(gRender, &outline_rect);
+
+    // title label
+    SDL_Rect title_rect = IRect2SDL_Rect(title_area);
+    SDL_SetRenderDrawColor(gRender, 0, 0, 0, 100);
+    SDL_RenderFillRect(gRender, &title_rect);
+
+    Label(ID_ANY, title_rect.x+title_rect.w/2-title_text->GetSize().w/2, title_rect.y, title_text);
+
+    // path label
+    SDL_Rect path_rect = IRect2SDL_Rect(path_area);
+    SDL_SetRenderDrawColor(gRender, 0, 0, 0, 100);
+    SDL_RenderFillRect(gRender, &path_rect);
+    string path_str = "path: " + fs::absolute(p).string();
+    path_text->SetText(path_str.c_str());
+    Label(ID_ANY, path_rect.x, path_rect.y, path_text);
+
+    // saveload button
+    Button(ID_ANY, save_load_text, saveload_area.x, saveload_area.y, saveload_area.w, saveload_area.h);
+
+    // cancel button
+    Button(ID_ANY, cancel_text, cancel_area.x, cancel_area.y, cancel_area.w, cancel_area.h);
+
+    // inputbox
+    if (type == FileDialogType::FILEDIALOG_TYPE_SAVE) {
+        Inputbox(ID_ANY, input_area.x, input_area.y, input_area.w, input_area.h, input_text);
+    }
+
+    // draw directories and files
+    SDL_SetRenderTarget(gRender, gCanva);
+    SDL_SetRenderDrawColor(gRender, 0, 100, 0, 50);
+    SDL_RenderClear(gRender);
+
+    const int button_len = 20;
+
+    const int padding = 3;
+
+    int i = 0;
+    SDL_Rect rect = {main_area.x, main_area.y, main_area.w-button_len-5, pt+4};
+    icolor item_color = {0, 120, 0, 255};
+    SDL_Point mouse_pos = IVec2SDL_Point(Mouse::GetInstance()->GetPosition());
+    // FIXME the codes in if area duplicated by code in for loop.Please eliminate the duplication
+    if (p.root_directory() != p) {
+        if (SDL_PointInRect(&mouse_pos, &rect)) {
+            item_color.g = 150;
+            if (Mouse::GetInstance()->GetButtonStatue(MOUSE_BUTTON_LEFT) == MOUSE_BUTTON_PRESS) {
+                p = p.parent_path();
+            }
+        }
+        __filedialog_draw_file_item("../", __query_text(file_texts, i, font, "../"), item_color, rect, padding, button_len);
+        i++;
+    }
+
+    /* FIXME a bad way to draw file items
+       I set Director::_canva.h = CanvaSize.h*10, to let all file items can draw.
+       I want to change to draw items by their position, and then change back _canva.h = CanvaSize.h
+     */
+    int totle_h = 0;
+    int offset_y = 0;
+    for (auto& it : fs::directory_iterator(p)) {
+        if (type == FileDialogType::FILEDIALOG_TYPE_SAVE && !fs::is_directory(it.path()))
+            continue;
+        string name = it.path().filename().string();
+        item_color = {0, 120, 0, 255};
+        rect.x = main_area.x;
+        rect.y = main_area.y+(padding+pt+4)*i;
+        rect.w = main_area.w-button_len-5;
+        rect.h = pt+4;
+        SDL_Point offseted_pos = mouse_pos;
+        offseted_pos.y += scrollbar_value;
+        if (SDL_PointInRect(&offseted_pos, &rect)) {
+            item_color.g = 150;
+            if (Mouse::GetInstance()->GetButtonStatue(MOUSE_BUTTON_LEFT) == MOUSE_BUTTON_PRESS) {
+                p = it.path(); 
+            }
+        }
+        __filedialog_draw_file_item(name, __query_text(file_texts, i, font, name), item_color, rect, padding, button_len);
+        totle_h = rect.y+rect.h - main_area.y;
+        i++;
+    }
+
+    Director::GetInstance()->SetRenderTargetToDefault();
+
+    SDL_Rect main_rect_src = IRect2SDL_Rect(main_area),
+             main_rect_dst = main_rect_src;
+    main_rect_src.y += scrollbar_value;
+    SDL_RenderCopy(gRender, gCanva, &main_rect_src, &main_rect_dst);
+
+    int excess_height = totle_h-main_area.h < 0 ? 0 : totle_h-main_area.h;
+    if (excess_height > 0) {
+        Scrollbar(ID_ANY, imgui::ScrollbarDirection::SCROLLBAR_VERTICAL,
+                main_area.x+main_area.w-button_len, main_area.y,
+                main_area.h,
+                0, excess_height,
+                scrollbar_value,
+                button_len);
+    }
 }

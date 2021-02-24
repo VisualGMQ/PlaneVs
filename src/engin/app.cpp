@@ -24,7 +24,7 @@ void App::SetTitle(string title) {
 }
 
 void App::initSystem() {
-    Assertm(SDL_Init(SDL_INIT_EVERYTHING) == 0, "App::initSystem", "App::initSystem", "SDL init failed");
+    Assertm(SDL_Init(SDL_INIT_EVERYTHING) == 0, "App::initSystem", "App::initSystem", "SDL init failed: %s", SDL_GetError());
     SDL_SetHintWithPriority(SDL_HINT_FRAMEBUFFER_ACCELERATION, "1", SDL_HINT_OVERRIDE);
     SDL_SetHintWithPriority(SDL_HINT_RENDER_OPENGL_SHADERS, "1", SDL_HINT_OVERRIDE);
     SDL_SetHintWithPriority(SDL_HINT_RENDER_SCALE_QUALITY, "1", SDL_HINT_OVERRIDE);
@@ -72,6 +72,8 @@ void App::eventHandle() {
 
 App::~App() {
     Logi("App::~App", "App cleanup");
+    Director::GetInstance()->StageDestroy();
+    Logi("App::~App", "Stage destroyed");
     Font::DestroyAll();
     Logi("App::~App", "Font destroyed");
     TextureRepo::DestroyAll();

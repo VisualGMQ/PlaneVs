@@ -1,17 +1,14 @@
 #include "engin/ui/ui.hpp"
 
 SDL_Renderer* imgui::gRender = nullptr;
-Text* imgui::gText = nullptr;
 SDL_Texture* imgui::gCanva = nullptr;
 imgui::UIState imgui::uistate = {imgui::ID_NONE, imgui::ID_NONE, imgui::ID_NONE, imgui::ID_NONE, glm::ivec2(0, 0), imgui::BUTTON_RELEASING, imgui::BUTTON_RELEASING, imgui::BUTTON_RELEASING, 0, imgui::ID_NONE, SDLK_UNKNOWN, KMOD_NONE, "", false};
 
 void imgui::Init(SDL_Renderer* renderer) {
     gRender = renderer;
-    Font* font = Font::Create(gRender, "test_resources/SimHei.ttf", 25, FONT_STYLE_NORMAL);
+    Font* font = Font::Create(gRender, "resources/SimHei.ttf", 25, FONT_STYLE_NORMAL);
     Logi("imgui::Init", "font created");
-    gText = Text::Create(font, "", {255, 255, 255, 255});
-    Logi("imgui::Init", "gText created");
-    gCanva = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, CanvaSize.w, CanvaSize.h);
+    gCanva = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, CanvaSize.w, CanvaSize.h*10);
     Logi("imgui::Init", "gCanva created");
 }
 
@@ -88,7 +85,7 @@ void imgui::ClearFocus() {
 }
 
 void imgui::Prepare() {
-    uistate.hot_item = ID_NONE; 
+    uistate.hot_item = ID_NONE;
     uistate.wheel = 0;
     uistate.keycode = SDLK_UNKNOWN;
     uistate.inputted = false;
@@ -103,7 +100,7 @@ void imgui::Finish() {
             button = BUTTON_PRESSING; \
         if (button == BUTTON_RELEASED) \
             button = BUTTON_RELEASING; \
-    } while(0)
+    }while(0)
 // END CHANGE_BUTTON_STATE
 
     CHANGE_BUTTON_STATE(uistate.left_button_state);

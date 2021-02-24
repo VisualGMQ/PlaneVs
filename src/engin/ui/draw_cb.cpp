@@ -1,11 +1,10 @@
 #include "engin/ui/ui.hpp"
 using imgui::uistate;
-using imgui::gText;
 using imgui::gRender;
 using imgui::IDType;
 using imgui::EventType;
 
-void imgui::DefaultButtonDrawCb(IDType id, EventType evt, string text, int x, int y, int w, int h, void* param) {
+void imgui::DefaultButtonDrawCb(IDType id, EventType evt, Text* text, int x, int y, int w, int h, void* param) {
     SDL_Color fill_color = {225, 255, 225, 255},
               hover_color = {150, 150, 150, 255},
               click_color = {100, 100, 100, 255},
@@ -14,11 +13,10 @@ void imgui::DefaultButtonDrawCb(IDType id, EventType evt, string text, int x, in
               click_font_color = {255, 255, 255, 255};
     SDL_Color* c = &fill_color;
     SDL_Rect rect = {x, y, w, h};
-    gText->SetColor(font_color.r, font_color.g, font_color.b, font_color.a);
-    gText->SetText(text.c_str());
+    text->SetColor(font_color.r, font_color.g, font_color.b, font_color.a);
     if (evt == imgui::EVENT_MOUSELEFT_PRESSING || evt == imgui::EVENT_BUTTON_CLICK) {
         c = &click_color;
-        gText->SetColor(click_font_color.r, click_font_color.g, click_font_color.b, click_font_color.a);
+        text->SetColor(click_font_color.r, click_font_color.g, click_font_color.b, click_font_color.a);
     }
     if (evt == imgui::EVENT_HOVER) {
         c = &hover_color;
@@ -27,7 +25,7 @@ void imgui::DefaultButtonDrawCb(IDType id, EventType evt, string text, int x, in
     SDL_RenderFillRect(gRender, &rect);
     SDL_SetRenderDrawColor(gRender, board_color.r, board_color.g, board_color.b, board_color.a);
     SDL_RenderDrawRect(gRender, &rect);
-    gText->Draw(x+w/2, y+h/2);
+    text->Draw(x+w/2, y+h/2);
 }
 
 void imgui::DefaultScrollbarDrawCb(IDType id, imgui::ScrollbarDirection direction, EventType event, int x, int y, int len, int min, int max, int value, int button_len, void* param) {
@@ -94,29 +92,32 @@ void imgui::DefaultCheckboxDrawCb(IDType id, EventType event, int x, int y, int 
     SDL_RenderDrawRect(gRender, &rect);
 }
 
-void imgui::DefaultLabelDrawCb(IDType id, EventType evt, int x, int y, const icolor& color, Font* font, const string& text, void* param) {
-    if (!font) {
+void imgui::DefaultLabelDrawCb(IDType id, EventType evt, int x, int y, Text* text, void* param) {
+    if (!text) {
+        Logw("imgui::DefaultLabelDrawCb", "text is nullptr");
         return;
     }
-    isize size = font->GetSizeByText(text);
-    font->Draw(gRender, x+size.w/2, y+size.h/2, color, {1, 1}, text.c_str());
+    auto size = text->GetSize();
+    text->Draw(x+size.w/2, y+size.h/2);
 }
 
-void imgui::DefaultInputboxDrawCb(IDType id, EventType event, int x, int y, int w, int h, Font* font, const string& text, void* param) {
-    if (!font)
+void imgui::DefaultInputboxDrawCb(IDType id, EventType event, int x, int y, int w, int h, Text* text, void* param) {
+    if (!text) {
+        Logw("imgui::DefaultInputboxDrawCb", "text is nullptr");
         return;
+    }
     const SDL_Color bg_color = {200, 200, 200, 255};
     const SDL_Color boarder_color = {0, 0, 0, 255};
     const icolor font_color = {0, 0, 0, 255};
     SDL_Rect rect = {x, y, w, h};
     SDL_SetRenderDrawColor(gRender, bg_color.r, bg_color.g, bg_color.b, bg_color.a);
     SDL_RenderFillRect(gRender, &rect);
-    isize font_size = font->GetSizeByText(text);
-    font->Draw(gRender, x+font_size.w/2+2, y+h/2, font_color, {1, 1}, text.c_str());
+    auto size = text->GetSize();
+    text->Draw(x+size.w/2+2, y+h/2);
     SDL_SetRenderDrawColor(gRender, boarder_color.r, boarder_color.g, boarder_color.b, boarder_color.a);
     SDL_RenderDrawRect(gRender, &rect);
     if (uistate.active_item == id) {
         SDL_SetRenderDrawColor(gRender, 0, 0, 0, 255);
-        SDL_RenderDrawLine(gRender, x+5+font_size.w, y+5, x+5+font_size.w, y+h-5);
+        SDL_RenderDrawLine(gRender, x+5+size.w, y+5, x+5+size.w, y+h-5);
     }
 }
