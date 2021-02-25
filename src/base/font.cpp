@@ -22,6 +22,12 @@ Font* Font::Create(SDL_Renderer* render, string font_filename, int pt, FontStyle
     return _instances.back();
 }
 
+int Font::GetHeight() const {
+    if (_font)
+        return TTF_FontHeight(_font);
+    return 0;
+}
+
 void Font::DestroyAll() {
     for (Font* font : _instances)
         delete font;

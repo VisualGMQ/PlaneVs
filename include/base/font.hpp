@@ -37,6 +37,7 @@ class Font final {
     static void DestroyAll();
 
     int GetPt() const { return _pt; }
+    int GetHeight() const;
     TTF_Font* GetFont() { return _font; }
     Texture* BlendSurface(SDL_Renderer*, icolor color, const char* format, ...);
     ~Font();

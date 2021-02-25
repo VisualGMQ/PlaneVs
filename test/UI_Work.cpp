@@ -13,7 +13,7 @@ class UI_Work: public Stage {
         _label2_text = Text::Create(_font, "", {255, 255, 255, 255});
         _inputbox1_text = Text::Create(_font, "", {255, 255, 255, 255});
         _inputbox2_text = Text::Create(_font, "", {255, 255, 255, 255});
-        _path = fs::current_path();
+        _path = "/usr/local/include";
     }
 
     void EventHandle(SDL_Event&) override {}
@@ -41,7 +41,7 @@ class UI_Work: public Stage {
         imgui::Inputbox(ID_ANY, 400, 400, 200, 50, _inputbox1_text);
         imgui::Inputbox(ID_ANY, 400, 600, 200, 50, _inputbox2_text);
         if (_show_filedialog) {
-            auto evt = FileDialog("Save Test", _path, imgui::FILEDIALOG_TYPE_OPEN, _font);
+            auto evt = FileDialog("Save Test", _path, imgui::FILEDIALOG_TYPE_SAVE, _font);
             if (evt != imgui::EVENT_NONE) {
                 _show_filedialog = false;
                 if (evt == imgui::EVENT_FILEDIALOG_OPEN) {

@@ -199,17 +199,17 @@ constexpr icolor text_color = {255, 255, 255, 255};
 void __filedialog_draw_file_item(const fs::path& path, Text* text, const icolor& color, const SDL_Rect& rect, const int padding, int button_len) {
     static Sprite* file_sprite = Sprite::Create("resources/file_ico.png"),
                   *dir_sprite = Sprite::Create("resources/dir_ico.png");
-    const int ico_width = 40;
+    const int padding_x = 5 + SDL_max(file_sprite->GetSize().w, dir_sprite->GetSize().w);
     SDL_SetRenderDrawColor(imgui::gRender, color.r, color.g, color.b, 255);
     SDL_RenderFillRect(imgui::gRender, &rect);
-    text->Draw(rect.x+text->GetSize().w/2 + ico_width, text->GetSize().h/2+rect.y);
+    text->Draw(rect.x+text->GetSize().w/2 + padding_x, text->GetSize().h/2+rect.y);
     if (fs::is_directory(path)) {
         dir_sprite->Show();
-        dir_sprite->MoveTo(rect.x+rect.h/2, rect.y+ico_width/2);
+        dir_sprite->MoveTo(rect.x+rect.h/2, rect.y+dir_sprite->GetSize().h/2);
         dir_sprite->Draw();
     } else {
         file_sprite->Show();
-        file_sprite->MoveTo(rect.x+rect.h/2, rect.y+ico_width/2);
+        file_sprite->MoveTo(rect.x+rect.h/2, rect.y+file_sprite->GetSize().h/2);
         file_sprite->Draw();
     }
 }
@@ -236,14 +236,23 @@ EventType imgui::FileDialog(string title, fs::path& p, imgui::FileDialogType typ
     static vector<Text*> file_texts(20, nullptr);
     static int scrollbar_value = 0;
 
+    vector<fs::path> cur_paths;
     if (!fs::exists(p) || !fs::is_directory(p)) {
         Logw("imgui::FileDialog", "path `%s` is invalid", p.string().c_str());
         p = fs::current_path();
     }
+    cur_paths.push_back(fs::path(".."));
+    for (auto& it : fs::directory_iterator(p)) {
+        if (type == FILEDIALOG_TYPE_SAVE && !it.is_directory())
+            continue;
+        cur_paths.push_back(it.path());
+    }
+    std::sort(cur_paths.begin(), cur_paths.end(), [](fs::path& p1, fs::path& p2){ return p1.string()<p2.string(); });
 
     // update dialog state, the id is ID_ANY due to it is singlton, we don't care it's ID
     UpdateState(ID_ANY, DialogOffsetX, DialogOffsetY, DialogWidth, DialogHeight);
 
+    // draw dialog outline
     SDL_SetRenderDrawColor(gRender, 0, 0, 0, 150);
     SDL_Rect outline_rect = {(CanvaSize.w-DialogWidth)/2, (CanvaSize.h-DialogHeight)/2, DialogWidth, DialogHeight};
     SDL_RenderFillRect(gRender, &outline_rect);
@@ -269,8 +278,12 @@ EventType imgui::FileDialog(string title, fs::path& p, imgui::FileDialogType typ
             p = selected_filename_absolute;
             return EVENT_FILEDIALOG_OPEN;
         } else if (type == FILEDIALOG_TYPE_SAVE) {
-            p.append(input_text->GetText());
-            return EVENT_FILEDIALOG_SAVE;
+            if (input_text->GetText().empty()) {
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "warn", "filename can't be empty", Director::GetInstance()->GetWindow());
+            } else {
+                p.append(input_text->GetText());
+                return EVENT_FILEDIALOG_SAVE;
+            }
         }
     }
 
@@ -285,85 +298,65 @@ EventType imgui::FileDialog(string title, fs::path& p, imgui::FileDialogType typ
     }
 
     // draw directories and files
-    SDL_SetRenderTarget(gRender, gCanva);
-    SDL_SetRenderDrawColor(gRender, 0, 100, 0, 50);
-    SDL_RenderClear(gRender);
-
     const int button_len = 20;
-
     const int padding = 3;
+    const int font_height = font->GetHeight();
+    const int item_height = font_height+5;
+    const int visiable_item_num = floor(main_area.h/static_cast<float>(item_height));
+    const int item_space = item_height+padding;
+    int cur_visiable_item_first = ceil(scrollbar_value/static_cast<float>(item_height));
+    SDL_Rect item_rect = {0, 0, main_area.w-button_len-2, item_height};
 
-    int i = 0;
-    SDL_Rect rect = {main_area.x, main_area.y, main_area.w-button_len-5, pt+4};
-    icolor item_color = {0, 120, 0, 255};
-    SDL_Point mouse_pos = IVec2SDL_Point(input::Mouse::GetInstance()->GetPosition());
-    // FIXME the codes in if area duplicated by code in for loop.Please eliminate the duplication
-    if (p.root_directory() != p) {
-        if (SDL_PointInRect(&mouse_pos, &rect)) {
-            item_color.g = 150;
-            if (input::Mouse::GetInstance()->GetLeftButtonState().IsPressed()) {
-                p = p.parent_path();
-                scrollbar_value = 0;
-            }
-        }
-        __filedialog_draw_file_item("../", __query_text(file_texts, i, font, "../"), item_color, rect, padding, button_len);
-        i++;
-    }
-
-    /* FIXME a bad way to draw file items
-       I set Director::_canva.h = CanvaSize.h*10, to let all file items can draw.
-       I want to change to draw items by their position, and then change back _canva.h = CanvaSize.h
-     */
-    int totle_h = 0;
-    int offset_y = 0;
-    SDL_Rect main_rect_src = IRect2SDL_Rect(main_area);
-    for (auto& it : fs::directory_iterator(p)) {
-        if (type == FileDialogType::FILEDIALOG_TYPE_SAVE && !fs::is_directory(it.path()))
-            continue;
-        string name = it.path().filename().string();
-        item_color = {0, 120, 0, 255};
-        rect.x = main_area.x;
-        rect.y = main_area.y+(padding+pt+4)*i;
-        rect.w = main_area.w-button_len-5;
-        rect.h = pt+4;
-        SDL_Point offseted_pos = mouse_pos;
-        offseted_pos.y += scrollbar_value;
-        std::error_code err_code;
-        if (fs::equivalent(fs::path(selected_filename_absolute), it.path(), err_code)) {
-            item_color.g = 175;
-        }
-        if (SDL_PointInRect(&mouse_pos, &main_rect_src) && SDL_PointInRect(&offseted_pos, &rect)) {
-            if (!fs::equivalent(fs::path(selected_filename_absolute), it.path(), err_code)) {
+    SDL_Point mouse_pos_origin = IVec2SDL_Point(input::Mouse::GetInstance()->GetPosition());
+    icolor item_color = {0, 125, 0, 255};
+    PanelStart({0, 100, 0, 50});
+        for (int i = 0; i < visiable_item_num && i+cur_visiable_item_first < cur_paths.size(); i++) {
+            fs::path& path = cur_paths.at(i+cur_visiable_item_first);
+            item_color.g = 125;
+            item_rect.y = i*item_space;
+            SDL_Rect main_rect = IRect2SDL_Rect(main_area);
+            SDL_Point mouse_pos_offset = {mouse_pos_origin.x-main_area.x, mouse_pos_origin.y-main_area.y};
+            if (SDL_PointInRect(&mouse_pos_origin, &main_rect) && SDL_PointInRect(&mouse_pos_offset, &item_rect)) {
                 item_color.g = 150;
-            }
-            if (input::Mouse::GetInstance()->GetLeftButtonState().IsPressed()) {
-                if (!fs::is_directory(it.path()) && type == FILEDIALOG_TYPE_OPEN) {
-                    selected_filename_absolute = fs::absolute(it.path()).string();
-                } else {
-                    p = it.path();
-                    scrollbar_value = 0;
+                if (input::Mouse::GetInstance()->GetLeftButtonState().IsPressed()) {
+                    if (fs::is_directory(path)) {
+                        if (path == "..") {
+                            p = p.parent_path();
+                        } else {
+                            p = path;
+                        }
+                        scrollbar_value = 0;
+                    } else {
+                        selected_filename_absolute = fs::absolute(path);
+                    }
+                    item_color.g = 175;
                 }
             }
+            std::error_code err_code;
+            if (fs::equivalent(path, fs::path(selected_filename_absolute), err_code)) {
+                item_color.g = 175;
+            }
+            __filedialog_draw_file_item(
+                    path,
+                    __query_text(file_texts, i, font, path.filename()),
+                    item_color, item_rect, padding, button_len);
         }
-        __filedialog_draw_file_item(it.path(), __query_text(file_texts, i, font, name), item_color, rect, padding, button_len);
-        totle_h = rect.y+rect.h - main_area.y;
-        i++;
-    }
+    PanelEnd(main_area.x, main_area.y, main_area.w, main_area.h);
 
-    Director::GetInstance()->SetRenderTargetToDefault();
-
-    SDL_Rect main_rect_dst = main_rect_src;
-    main_rect_src.y += scrollbar_value;
-    SDL_RenderCopy(gRender, gCanva, &main_rect_src, &main_rect_dst);
-
-    int excess_height = totle_h-main_area.h < 0 ? 0 : totle_h-main_area.h;
+    /* 
+        FIXME I should use
+        item_height_sum = item_space*cur_paths.size();
+        but it will present more space area. I guess somewhere have error
+    */
+    const int item_height_sum = item_height*(cur_paths.size()+2);
+    int excess_height = item_height_sum-main_area.h < 0 ? 0 : item_height_sum-main_area.h;
     if (excess_height > 0) {
         Scrollbar(ID_ANY, imgui::ScrollbarDirection::SCROLLBAR_VERTICAL,
-                main_area.x+main_area.w-button_len, main_area.y,
-                main_area.h,
-                0, excess_height,
-                scrollbar_value,
-                button_len);
+                  main_area.x+main_area.w-button_len, main_area.y,
+                  main_area.h,
+                  0, excess_height,
+                  scrollbar_value,
+                  button_len);
     }
     return EVENT_NONE;
 }

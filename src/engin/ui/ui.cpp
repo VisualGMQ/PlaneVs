@@ -8,7 +8,7 @@ void imgui::Init(SDL_Renderer* renderer) {
     gRender = renderer;
     Font* font = Font::Create(gRender, "resources/SimHei.ttf", 25, FONT_STYLE_NORMAL);
     Logi("imgui::Init", "font created");
-    gCanva = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, CanvaSize.w, CanvaSize.h*10);
+    gCanva = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, CanvaSize.w, CanvaSize.h);
     Logi("imgui::Init", "gCanva created");
 }
 
