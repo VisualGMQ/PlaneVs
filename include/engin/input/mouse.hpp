@@ -4,12 +4,10 @@
 #include <glm/glm.hpp>
 
 #include "engin/input/device.hpp"
+#include "engin/input/button.hpp"
 using glm::ivec2;
 
-enum MouseButtonStatue {
-    MOUSE_BUTTON_RELEASE,
-    MOUSE_BUTTON_PRESS
-};
+namespace input {
 
 class Mouse final: public Device {
  public:
@@ -18,11 +16,13 @@ class Mouse final: public Device {
     void ReceiveEvent(SDL_Event& event) override;
     ivec2 GetPosition() const { return _position; }
     ivec2 GetMotion() const { return _motion; }
-    MouseButtonStatue GetButtonStatue(Uint8 button);
+    input::Button GetLeftButtonState();
+    input::Button GetRightButtonState();
+    void Update();
 
  private:
-    MouseButtonStatue _lbutton_status = MOUSE_BUTTON_RELEASE;
-    MouseButtonStatue _rbutton_status = MOUSE_BUTTON_RELEASE;
+    input::ButtonState _lbutton_state = input::BUTTON_RELEASING;
+    input::ButtonState _rbutton_state = input::BUTTON_RELEASING;
     ivec2 _position = ivec2(0);
     ivec2 _motion = ivec2(0);
 
@@ -30,6 +30,7 @@ class Mouse final: public Device {
     static Mouse _instance;
 };
 
+} // namespace input
 
 #endif
 

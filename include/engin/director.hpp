@@ -35,6 +35,7 @@ class Director final {
     SDL_Window* GetWindow() { return _window; }
     SDL_Renderer* GetRender() { return _render; }
     bool ShouldExit() const;
+    void StageDestroy();
     void Destroy();
 
  private:

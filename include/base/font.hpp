@@ -3,11 +3,12 @@
 #include <string>
 #include <vector>
 
-#include <SDL_FontCache.h>
+#include <SDL_ttf.h>
 
 #include "base/tools.hpp"
 #include "base/geo_math.hpp"
 #include "base/log.hpp"
+#include "base/texture.hpp"
 using std::string;
 using std::vector;
 
@@ -33,17 +34,15 @@ class Font;
 class Font final {
  public:
     static Font* Create(SDL_Renderer* render, string font_filename, int pt, FontStyle style);
-    int GetPt() const { return _pt; }
-    FC_Font* GetFont() { return _font; }
     static void DestroyAll();
 
-    isize GetSizeByText(string text);
-    void Draw(SDL_Renderer*, int x, int y, icolor color, scale s, const char* format, ...);
-    void DrawBox(SDL_Renderer*, FontAlignment align, irect box, icolor color, scale s, const char* format, ...);
+    int GetPt() const { return _pt; }
+    TTF_Font* GetFont() { return _font; }
+    Texture* BlendSurface(SDL_Renderer*, icolor color, const char* format, ...);
     ~Font();
 
  private:
-    FC_Font* _font = nullptr;
+    TTF_Font* _font = nullptr;
     int _pt = 0;
     static vector<Font*> _instances;
 

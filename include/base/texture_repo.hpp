@@ -10,7 +10,7 @@
 #include "base/texture_drawable.hpp"
 #include "base/texture.hpp"
 #include "base/destroyable.hpp"
-#include "image_sheet/image_sheet.hpp"
+#include "base/image_sheet.hpp"
 using std::map;
 using std::string;
 using std::forward_list;

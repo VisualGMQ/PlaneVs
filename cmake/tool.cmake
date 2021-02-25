@@ -17,18 +17,13 @@ function(DetectAndDownload DIR ZIP_FILE DOWNLOAD_URL)
             message(WARNING "can't find ${FILENAME}, download it from ${DOWNLOAD_URL}")
             file(DOWNLOAD ${DOWNLOAD_URL} ${CMAKE_SOURCE_DIR}/external/${FILENAME})
         endif()
-        find_program(TAR_EXECUTE tar)
-        if (NOT TAR_EXECUTE)
-            message(FATAL_ERROR "cmake can't unzip external/${FILENAME} automatically, please unzip it to external/ by yourself")
-        else()
-            message(STATUS "unzipping external/${FILENAME}...")
-            execute_process(
-                COMMAND ${TAR_EXECUTE} -xf ${FILENAME}
-                WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/external
-                RESULT_VARIABLE TAR_RESULT)
-            if (NOT "${TAR_RESULT}" EQUAL "0")
-                message(FATAL_ERROR "tar command unzipped external/${FILENAME} failed, please unzip it to external/ by yourself")
-            endif()
+        message(STATUS "unzipping external/${FILENAME}...")
+        execute_process(
+            COMMAND ${CMAKE_COMMAND} tar xf ${FILENAME}
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/external
+            RESULT_VARIABLE TAR_RESULT)
+        if (NOT "${TAR_RESULT}" EQUAL "0")
+            message(FATAL_ERROR "tar command unzipped external/${FILENAME} failed, please unzip it to external/ by yourself")
         endif()
     endif()
 endfunction()

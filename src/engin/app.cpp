@@ -24,7 +24,7 @@ void App::SetTitle(string title) {
 }
 
 void App::initSystem() {
-    Assertm(SDL_Init(SDL_INIT_EVERYTHING) == 0, "App::initSystem", "App::initSystem", "SDL init failed");
+    Assertm(SDL_Init(SDL_INIT_EVERYTHING) == 0, "App::initSystem", "App::initSystem", "SDL init failed: %s", SDL_GetError());
     SDL_SetHintWithPriority(SDL_HINT_FRAMEBUFFER_ACCELERATION, "1", SDL_HINT_OVERRIDE);
     SDL_SetHintWithPriority(SDL_HINT_RENDER_OPENGL_SHADERS, "1", SDL_HINT_OVERRIDE);
     SDL_SetHintWithPriority(SDL_HINT_RENDER_SCALE_QUALITY, "1", SDL_HINT_OVERRIDE);
@@ -45,6 +45,8 @@ void App::Run() {
     while (!director->ShouldExit()) {
         const int tick = SDL_GetTicks();
         director->RenderClear(CanvaBgColor);
+        input::Keyboard::GetInstance()->Update();
+        input::Mouse::GetInstance()->Update();
         imgui::Prepare();
         eventHandle();
         director->Update();
@@ -65,13 +67,15 @@ void App::eventHandle() {
         if (_event.type == SDL_QUIT)
             Director::GetInstance()->Exit();
         imgui::EventHandle(_event);
-        Keyboard::GetInstance()->ReceiveEvent(_event);
-        Mouse::GetInstance()->ReceiveEvent(_event);
+        input::Keyboard::GetInstance()->ReceiveEvent(_event);
+        input::Mouse::GetInstance()->ReceiveEvent(_event);
     }
 }
 
 App::~App() {
     Logi("App::~App", "App cleanup");
+    Director::GetInstance()->StageDestroy();
+    Logi("App::~App", "Stage destroyed");
     Font::DestroyAll();
     Logi("App::~App", "Font destroyed");
     TextureRepo::DestroyAll();

@@ -8,7 +8,6 @@ class Controller {
     void TrunOff() { _is_working = false; }
 
     void Control();
-
     virtual ~Controller() = default;
 
  protected:

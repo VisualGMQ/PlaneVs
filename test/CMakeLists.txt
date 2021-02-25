@@ -22,3 +22,7 @@ declare_test(Music_Work ./Music_Work.cpp)
 declare_test(MusicRepo_Work ./MusicRepo_Work.cpp)
 declare_test(Text_Work ./Text_Work.cpp)
 declare_test(UI_Work ./UI_Work.cpp)
+declare_test(Input_Work ./Input_Work.cpp)
+set_tests_properties(Input_Work
+                     PROPERTIES
+                     DEPENDS Text_Work)      

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14...3.18)
-project(PlaneFight
+project(PlaneVS
 	VERSION 0.0.1
 	LANGUAGES CXX C)
 
@@ -30,7 +30,6 @@ set(SDL_DEP_LIBRARIES ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES} ${SDL2_MIXER_LIB
 
 # compile every parts of engin
 aux_source_directory(src/base ENGIN_BASE_SRC)
-aux_source_directory(src/image_sheet ENGIN_BASE_SRC)
 add_library(GameEngin_base STATIC "")
 target_sources(GameEngin_base PRIVATE ${ENGIN_BASE_SRC})
 target_include_directories(GameEngin_base PUBLIC ${SDL_DEP_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/include)
@@ -48,6 +47,7 @@ target_link_libraries(GameEngin_engin PUBLIC GameEngin_base)
 # compile game
 aux_source_directory(src/game GAME_SRC)
 aux_source_directory(src/game/controller GAME_SRC)
+aux_source_directory(src/game/controller/plane GAME_SRC)
 
 set(GAME_EXE_NAME ${CMAKE_PROJECT_NAME})
 add_executable(${GAME_EXE_NAME} "")

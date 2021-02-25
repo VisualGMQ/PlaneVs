@@ -53,10 +53,10 @@ struct scale_base {
 };
 using scale = scale_base<float>;
 
-SDL_Rect IRect2SDL_Rect(irect& irect);
-SDL_Color IColor2SDL_Color(icolor& color);
-SDL_Point IVec2SDL_Point(glm::ivec2& vec);
+SDL_Rect IRect2SDL_Rect(const irect& irect);
+SDL_Color IColor2SDL_Color(const icolor& color);
+SDL_Point IVec2SDL_Point(const glm::ivec2& vec);
 SDL_Rect CenterRect2SDL_Rect(int x, int y, int w, int h);
-SDL_Rect CenterRect2SDL_Rect(irect& rect);
+SDL_Rect CenterRect2SDL_Rect(const irect& rect);
 
 #endif

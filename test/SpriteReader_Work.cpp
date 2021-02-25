@@ -6,7 +6,7 @@
 #pragma comment(lib, "SDL2_mixer.lib")
 #endif
 
-#include "image_sheet/image_sheet.hpp"
+#include "base/image_sheet.hpp"
 #include <iostream>
 using namespace std;
 

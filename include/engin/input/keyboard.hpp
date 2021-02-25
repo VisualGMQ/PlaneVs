@@ -3,27 +3,28 @@
 #include <map>
 
 #include "engin/input/device.hpp"
+#include "engin/input/button.hpp"
 using std::map;
 
-enum KeyStatus {
-    KEY_RELEASE = 0,
-    KEY_PRESS = 1
-};
+namespace input {
 
 class Keyboard final: public Device {
  public:
     static Keyboard* GetInstance();
 
     void ReceiveEvent(SDL_Event& event) override;
-    KeyStatus Query(SDL_Keycode sym) const;
+    Button Query(SDL_Keycode sym) const;
+    void Update();
 
  private:
     static Keyboard _instance;
 
-    map<SDL_Keycode, KeyStatus> _status;
+    map<SDL_Keycode, input::ButtonState> _states;
 
     Keyboard() = default;
 };
+
+}   // namespace input
 
 #endif
 

@@ -6,8 +6,8 @@
 class PlaneController: public Controller {
  public:
     void SetPlane(Plane* plane) { _plane = plane; }
-    virtual ~PlaneController() = default;
     Plane* GetPlane() { return _plane; }
+    virtual ~PlaneController() = default;
 
  private:
     Plane* _plane = nullptr;

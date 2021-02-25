@@ -1,1 +1,1 @@
-all sprites keycolor is (32, 32, 32, 255)
+if sprite have keycolor, it is (32, 32, 32, 255)

@@ -1,5 +1,9 @@
 #include "engin/input/mouse.hpp"
 
+using input::Mouse;
+using input::Button;
+using input::ButtonState;
+
 Mouse Mouse::_instance;
 
 Mouse* Mouse::GetInstance() {
@@ -15,24 +19,37 @@ void Mouse::ReceiveEvent(SDL_Event& event) {
     }
     if (event.type == SDL_MOUSEBUTTONDOWN) {
         if (event.button.button == SDL_BUTTON_LEFT) {
-            _lbutton_status = MOUSE_BUTTON_PRESS;
+            _lbutton_state = BUTTON_PRESSED;
         } else if (event.button.button == SDL_BUTTON_RIGHT) {
-            _rbutton_status = MOUSE_BUTTON_PRESS;
+            _rbutton_state = BUTTON_PRESSED;
         }
     }
     if (event.type == SDL_MOUSEBUTTONUP) {
         if (event.button.button == SDL_BUTTON_LEFT) {
-            _lbutton_status = MOUSE_BUTTON_RELEASE;
+            _lbutton_state = BUTTON_RELEASED;
         } else if (event.button.button == SDL_BUTTON_RIGHT) {
-            _rbutton_status = MOUSE_BUTTON_RELEASE;
+            _rbutton_state = BUTTON_RELEASED;
         }
     }
 }
 
-MouseButtonStatue Mouse::GetButtonStatue(Uint8 button) {
-    if (button == SDL_BUTTON_LEFT)
-        return _lbutton_status;
-    if (button == SDL_BUTTON_RIGHT)
-        return _rbutton_status;
-    return MOUSE_BUTTON_RELEASE;
+void Mouse::Update() {
+    if (_lbutton_state == BUTTON_RELEASED) {
+        _lbutton_state = BUTTON_RELEASING;
+    } else if (_lbutton_state == BUTTON_PRESSED) {
+        _lbutton_state = BUTTON_PRESSING;
+    }
+    if (_rbutton_state == BUTTON_RELEASED) {
+        _rbutton_state = BUTTON_RELEASING;
+    } else if (_rbutton_state == BUTTON_PRESSED) {
+        _rbutton_state = BUTTON_PRESSING;
+    }
+}
+
+Button Mouse::GetLeftButtonState() {
+    return Button(_lbutton_state);
+}
+
+Button Mouse::GetRightButtonState() {
+    return Button(_rbutton_state);
 }

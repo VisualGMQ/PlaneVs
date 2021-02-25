@@ -7,11 +7,14 @@ using std::list;
 
 class PlaneKeyboardController: public PlaneController {
  public:
-    static PlaneKeyboardController* CreateController(Plane* plane, SDL_KeyCode up, SDL_KeyCode down, SDL_KeyCode left, SDL_KeyCode right, SDL_KeyCode fire, SDL_KeyCode bomb, SDL_KeyCode blast) {
+    static PlaneKeyboardController* Create(Plane* plane, SDL_KeyCode up, SDL_KeyCode down, SDL_KeyCode left, SDL_KeyCode right, SDL_KeyCode fire, SDL_KeyCode bomb, SDL_KeyCode blast) {
         _controllers.emplace_back(up, down, left, right, fire, bomb, blast);
         _controllers.back().SetPlane(plane);
         return &_controllers.back();
     }
+
+    PlaneKeyboardController(SDL_KeyCode up, SDL_KeyCode down, SDL_KeyCode left, SDL_KeyCode right, SDL_KeyCode fire, SDL_KeyCode bomb, SDL_KeyCode blast):_up(up),_down(down),_left(left),_right(right),_fire(fire),_bomb(bomb),_blast(blast) {}
+    virtual ~PlaneKeyboardController() = default;
 
  protected:
     void Up() override;
@@ -31,7 +34,6 @@ class PlaneKeyboardController: public PlaneController {
     SDL_KeyCode _bomb = SDLK_UNKNOWN;
     SDL_KeyCode _blast = SDLK_UNKNOWN;
 
-    PlaneKeyboardController(SDL_KeyCode up, SDL_KeyCode down, SDL_KeyCode left, SDL_KeyCode right, SDL_KeyCode fire, SDL_KeyCode bomb, SDL_KeyCode blast):_up(up),_down(down),_left(left),_right(right),_fire(fire),_bomb(bomb),_blast(blast) {}
     static list<PlaneKeyboardController> _controllers;
 };
 

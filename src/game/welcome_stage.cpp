@@ -31,9 +31,10 @@ void WelcomeStage::Init() {
     sprite = _cache->CreateSprite("player_bullet");
     _plane->AddCharger(new Charger(sprite, prop, 10));
 
-    _controller = PlaneKeyboardController::CreateController(_plane, SDLK_w, SDLK_s, SDLK_a, SDLK_d, SDLK_j, SDLK_k, SDLK_l);
+    _controller = PlaneKeyboardController::Create(_plane, SDLK_w, SDLK_s, SDLK_a, SDLK_d, SDLK_j, SDLK_k, SDLK_l);
+    _controller->TrunOn();
 
-    Bgm::Load("test/test_resources/Mind Control.ogg");
+    Bgm::Load("test_resources/Mind Control.ogg");
     Bgm::Play(0);
     Logi("WelcomeStage::WelcomeStage", "welcome stage inited");
 }
